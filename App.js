@@ -1,12 +1,17 @@
 import { StatusBar } from 'expo-status-bar';
-import {Text, View } from 'react-native';
-import {styles} from './src/styles/styles';
-import Home from './src/components/Home';
+import { AuthProvider } from './src/context/AuthProvider';
+import { NavigationContainer } from '@react-navigation/native';
+import PrivateRoute from './src/components/PrivateRoute';
 
 export default function App() {
-  return (<>
-      <StatusBar style="auto" />
-      <Home/>
+  return (
+  <>
+    <NavigationContainer>
+      <AuthProvider>
+        <StatusBar style="auto" />
+        <PrivateRoute />
+      </AuthProvider>
+    </NavigationContainer>
   </>
       
      
