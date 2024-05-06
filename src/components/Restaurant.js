@@ -20,33 +20,34 @@ const Restaurant = ({restaurant}) => {
 
 
 const styles = StyleSheet.create({
-    containerCard: {
-      width: '30%',
-      marginBottom: 20,
-      padding: 10,
-      backgroundColor: '#f5f5f5',
-      borderRadius: 8,
-      borderWidth: 2,
-      borderColor: 'black',
-    },
-    imgContainer: {
-      alignItems: 'center',
-    },
-    image: {
-      width: '100%',
-      height: 100,
-      marginBottom: 10,
-    },
-    textContainer: {
-        marginLeft:'10%',
-        flex: 1,
-        justifyContent: 'center',
-    },
-    text: {
-      textAlign: 'center',
-      marginBottom: 5,
-    },
-  });
+  containerCard: {
+    width: '30%',
+    marginBottom: 20,
+    padding: 10,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: 'black',
+    flexDirection: 'row', // Alinea la imagen y el texto en una fila
+  },
+  imgContainer: {
+    width: '40%', // Ajusta el ancho de la imagen
+    marginRight: '5%', // Espacio entre la imagen y el texto
+  },
+  image: {
+    width: '100%',
+    height: 100,
+    marginBottom: 10,
+  },
+  textContainer: {
+    width: '55%', // Ajusta el ancho del contenedor de texto
+  },
+  text: {
+    textAlign: 'center',
+    marginBottom: 5,
+  },
+});
+
   
 
 export default Restaurant;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthProvider';
 import { validateEmail } from '../validation/validation';
@@ -63,7 +63,8 @@ function RegisterScreen() {
             style={styles.input}
             value={username}
             onChangeText={setUsername}
-            keyboardType="username-address"
+            keyboardType='default'
+           
           />
         </View>
         <View style={styles.formControl}>
@@ -107,11 +108,15 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: 'white',
     borderRadius: 8,
+    borderColor:'gray',
+    borderWidth:Platform.OS === 'android' ? 1 : borderWidth=2,
     shadowColor: 'black',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    width: '100%',
-    maxWidth: 400,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 15,
+    elevation: 8,
+    width: '90%',
+    maxWidth: Platform.OS === 'ios' || Platform.OS === 'android' ? '90%':'25%',
     borderRadius: 30,
     shadowRadius: 7,
   },

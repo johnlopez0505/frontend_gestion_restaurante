@@ -37,11 +37,15 @@ const ListRestaurant = () => {
 
 const styles = StyleSheet.create({
   containerGame: {
-    flexGrow: 2,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    padding: 20,
     paddingVertical: 20,
     paddingHorizontal: 10,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'row',
+    backgroundColor:'red'
   },
 });
 
