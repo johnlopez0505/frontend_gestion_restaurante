@@ -34,7 +34,7 @@ function RegisterScreen() {
 
   useEffect(() => {
     if (state.isAuthenticated) {
-      navigation.navigate('/');
+      navigation.navigate('Login');
     }
     if (state.loginError) {
       setError(state.loginError);
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     shadowRadius: 15,
     elevation: 8,
     width: '90%',
-    maxWidth: Platform.OS === 'ios' || Platform.OS === 'android' ? '90%':'25%',
+    maxWidth: Platform.OS !== 'web' ? '90%':'25%',
     borderRadius: 30,
     shadowRadius: 7,
   },

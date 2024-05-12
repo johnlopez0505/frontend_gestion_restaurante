@@ -13,15 +13,17 @@ function LoginScreen() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigation.navigate('ListRestaurant');
+      navigation.navigate('Home');
     }
     if (loginError) {
-      setError(loginError);
+      setError(loginError.message || 'Error al iniciar sesión'); 
+    } else {
+      setError(null); 
     }
   }, [isAuthenticated, loginError, navigation]);
 
   useEffect(() => {
-    setError('');
+    setError(null); 
   }, [username, password]);
 
   const handleSubmit = () => {
@@ -91,7 +93,7 @@ const styles = StyleSheet.create({
     elevation: 5,
     shadowOpacity: 0.8,
     width: '90%',
-    maxWidth: Platform.OS === 'ios' || Platform.OS === 'android' ? '90%':'25%',
+    maxWidth: Platform.OS !== 'web' ? '90%':'25%',
     borderRadius: 30,
     shadowRadius: 7,
   },

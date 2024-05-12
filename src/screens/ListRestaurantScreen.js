@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, Text } from 'react-native';
 import API from '../components/axios';
-import Restaurant from './Restaurant';
+import Restaurant from '../components/Restaurant';
+import { useAuth } from '../context/AuthProvider';
 
 const ListRestaurant = () => {
 
-  const [restaurantes, setRestaurantes] = useState([]);
-
+  const {restaurantes, setRestaurantes} = useAuth();
 
   useEffect(() => {
     const fetchRestaurantes = async () => {
@@ -14,19 +14,23 @@ const ListRestaurant = () => {
         console.log("entro en listar restaurantes");
         const response = await API.get('/restaurantes');
         console.log(response.data.restaurantes);
-        setRestaurantes(response.data.restaurantes);
+        setRestaurantes(response.data.restaurantes); 
       } catch (error) {
-        console.error("Error al obtener los restaurantes", error);
+        if (error.response && error.response.data.status === "FORBIDDEN") {
+          console.error('Error: el token ha expirado');
+        } else {
+          console.error("Error al obtener los restaurantes", error);
+        }
       }
     };
     fetchRestaurantes();
   }, []);
-
-  
+ 
 
   return (
-    <ScrollView contentContainerStyle={styles.containerGame}>
+    <ScrollView contentContainerStyle={styles.containerRestaurante}>
       {
+        restaurantes === undefined? <Text>No hay restaurantes</Text>:
         restaurantes.map(restaurants => (
           <Restaurant key={restaurants.id} restaurant={restaurants} />
         ))
@@ -36,16 +40,16 @@ const ListRestaurant = () => {
 };
 
 const styles = StyleSheet.create({
-  containerGame: {
+  containerRestaurante: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     padding: 20,
     paddingVertical: 20,
-    paddingHorizontal: 10,
+    paddingHorizontal: 0,
     justifyContent: 'center',
     alignItems: 'row',
-    backgroundColor:'red'
+    backgroundColor:'yellow'
   },
 });
 

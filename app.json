@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "frontend_gestion_restaurante",
-    "slug": "frontend_gestion_restaurante",
+    "slug": "frontend",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -18,7 +18,9 @@
       "supportsTablet": true
     },
     "android": {
-      "permissions": ["INTERNET"],
+      "permissions": [
+        "INTERNET"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -26,6 +28,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "4e6108e6-c5a2-4ddc-a656-6e5e8662341b"
+      }
+    },
+    "owner": "john_lopez"
   }
 }

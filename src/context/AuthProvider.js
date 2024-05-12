@@ -9,15 +9,17 @@ const AuthContext = createContext();
 const authReducer = (state, action) => {
     switch (action.type) {
         case 'LOGIN_SUCCESS':
-            return { ...state, isAuthenticated: true, user: action.payload.user, token: action.payload.token, loginError: null };
+            return { ...state, isAuthenticated: true, user: action.payload.user, 
+                token: action.payload.token, refreshToken: action.payload.refreshToken, loginError: null };
         case 'LOGIN_FAILED':
-            return { ...state, isAuthenticated: false, user: null, token: null, loginError: action.payload };
+            return { ...state, isAuthenticated: false, user: null, token: null, 
+                refreshToken: null, loginError: action.payload };
         case 'LOGOUT':
-            return { ...state, isAuthenticated: false, user: null, token: null, loginError: null };
+            return { ...state, isAuthenticated: false, user: null, token: null, refreshToken: null, loginError: null };
         case 'REGISTER_SUCCESS':
-            return { ...state, isAuthenticated: true, user: action.payload.user, token: action.payload.token, loginError: null };
+            return { ...state, isAuthenticated: true, user: action.payload.user, loginError: null };
         case 'REGISTER_FAILED':
-            return { ...state, isAuthenticated: false, user: null, token: null, loginError: action.payload };
+            return { ...state, isAuthenticated: false, user: null,  loginError: action.payload };
         default:
             throw new Error(`Unhandled action type: ${action.type}`);
     }
@@ -42,14 +44,16 @@ export const AuthProvider = ({ children }) => {
     const [menus, setMenus] = useState([]);
     const [usuarios, setUsuarios] = useState([]);
     const [reservas, setReservas] = useState([]);
+    const [urlSolicitud, setUrlSolicitud] = useState('');
 
     useEffect(() => {
         const loadUser = async () => {
             try {
                 const token = await AsyncStorage.getItem('token'); // Obtener el token desde AsyncStorage
-                if (token) {
+                const refreshToken = AsyncStorage.getItem('refreshToken');
+                if (token && refreshToken) {
                     const user = JSON.parse(await AsyncStorage.getItem('user')); // Obtener el usuario desde AsyncStorage
-                    dispatch({ type: 'LOGIN_SUCCESS', payload: { user, token} });
+                    dispatch({ type: 'LOGIN_SUCCESS', payload: { user, token, refreshToken} });
                 }
             } catch (error) {
                 console.error("Error al cargar el usuario", error);
@@ -63,8 +67,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (username, password) => {
         try {
-            const response = await axios.post('http://localhost:8080/api/auth/login', { username, password });
-            console.log(response.data);
+            const response = await axios.post('https://backend-fbwq.onrender.com/api/auth/login', { username, password });
             const { token, refreshToken, fullName, id  } = response.data;
             await AsyncStorage.setItem('token', token); // Guardar el token en AsyncStorage
             await AsyncStorage.setItem('refreshToken', refreshToken); // Guardar el refreshToken en el AsyncStorage
@@ -81,7 +84,7 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (username, password, fullName) => {
         try {
-            const response = await axios.post('http://localhost:8080/api/auth/register', { username, password, fullName });
+            const response = await axios.post('https://backend-fbwq.onrender.com/api/auth/register', { username, password, fullName });
             const { accessToken, user } = response.data;
             await AsyncStorage.setItem('token', accessToken);
             await AsyncStorage.setItem('user', JSON.stringify(user));
@@ -91,27 +94,6 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // useEffect(() => {
-    //     const fetchRestaurantes = async () => {
-    //         try {
-    //             console.log("pase por aca");
-    //             console.log("este es el token " );
-    //             console.log("este es el refreshToken " + refreshToken);
-    //             const response = await API.get('/restaurantes', {
-    //                 headers: {
-    //                     Authorization: `Bearer ${token}`,
-    //                     RefreshToken: refreshToken
-    //                 }
-    //             });
-    //             console.log(response);
-    //             setRestaurantes(response.data);
-    //         } catch (error) {
-    //             console.error("Error al obtener los restaurantes", error);
-    //         }
-    //     }
-    //     fetchRestaurantes();
-        
-    // },[])
 
     // useEffect(() => {
     //     const fetchMenus = async () => {
@@ -172,7 +154,7 @@ export const AuthProvider = ({ children }) => {
     return (
         <AuthContext.Provider value={{ login, register, logout, getToken, state, loading,
         setRestaurantes,restaurantes,setMenus,menus, setReservas,
-        reservas,setUsuarios,usuarios }}>
+        reservas,setUsuarios,usuarios, urlSolicitud, setUrlSolicitud}}>
             {children}
         </AuthContext.Provider>
     );

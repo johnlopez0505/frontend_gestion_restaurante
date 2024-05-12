@@ -6,13 +6,11 @@ export  const styles = StyleSheet.create({
       backgroundColor: '#fff',
       alignItems: 'center',
       justifyContent: 'center',
-      marginTop:Platform.OS === 'ios' ? 30 : 0,
-      marginTop:Platform.OS === 'android' ? 30 : 0,
+      //marginTop:Platform.OS !== 'web' ? 0: 0,
     },
 
     tex:{
-        color:"red",
-        fontSize:36
+        fontSize:20
     },
 
 
@@ -29,6 +27,12 @@ export  const styles = StyleSheet.create({
         color: 'white',
     },
 
+    parrafo: {
+        fontSize:Platform.OS !== 'web' ? 10 : 20,
+        fontWeight: 'bold',
+        color: 'white',
+    },
+
     content: {
         flex: 1,
         width:"100%",
@@ -39,7 +43,7 @@ export  const styles = StyleSheet.create({
         backgroundColor: '#e0e0e0',
         width: '30%',
         width:Platform.OS === 'web' ? "20%":"30%",
-        padding: 20,
+        padding: 10,
     },
 
     sidebarLink: {
@@ -48,7 +52,7 @@ export  const styles = StyleSheet.create({
 
     main: {
         flex: 2,
-        padding: 20,
+        padding: 5,
     },
    
   });

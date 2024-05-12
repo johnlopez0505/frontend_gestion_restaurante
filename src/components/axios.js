@@ -3,7 +3,8 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Importar AsyncStorage desde 'react-native'
 
 const API = axios.create({
-  baseURL: 'http://192.168.1.33:8080/api',
+  // baseURL: 'http://192.168.1.33:8080/api'
+  baseURL: 'https://backend-fbwq.onrender.com/api'
 });
 
 API.interceptors.request.use(

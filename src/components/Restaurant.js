@@ -1,12 +1,12 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet, Platform } from 'react-native';
 
 
 const Restaurant = ({restaurant}) => {
     return (
         <View style={styles.containerCard}>
-            <View style={styles.img} key={restaurant.id}>
-                <Image source={{ uri: restaurant.image }} style={styles.image} />
+            <View style={styles.imgContainer} key={restaurant.id}>
+                <Image source={{ uri: restaurant.imagen }} style={styles.imagen} />
             </View>
             <View style={styles.textContainer}>
                 <Text style={styles.text}>{restaurant.nombre}</Text>
@@ -21,20 +21,26 @@ const Restaurant = ({restaurant}) => {
 
 const styles = StyleSheet.create({
   containerCard: {
-    width: '30%',
+    width:Platform.OS !== 'web'? '80%':'30%',
     marginBottom: 20,
     padding: 10,
+    margin:10,
     backgroundColor: '#f5f5f5',
     borderRadius: 20,
     borderWidth: 2,
     borderColor: 'black',
+    shadowColor: 'black',
+    shadowOffset: { width: 0, height: 0 },
+    shadowRadius: 9,
+    elevation: 5,
+    shadowOpacity: 0.8,
     flexDirection: 'row', // Alinea la imagen y el texto en una fila
   },
   imgContainer: {
     width: '40%', // Ajusta el ancho de la imagen
     marginRight: '5%', // Espacio entre la imagen y el texto
   },
-  image: {
+  imagen: {
     width: '100%',
     height: 100,
     marginBottom: 10,
