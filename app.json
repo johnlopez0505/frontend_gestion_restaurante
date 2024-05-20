@@ -34,6 +34,16 @@
         "projectId": "4e6108e6-c5a2-4ddc-a656-6e5e8662341b"
       }
     },
-    "owner": "john_lopez"
+    "owner": "john_lopez",
+
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you share them with your friends.",
+          "cameraPermission": "The app accesses your camera to let you take photos and share them with your friends."
+        }
+      ]
+    ]
   }
 }

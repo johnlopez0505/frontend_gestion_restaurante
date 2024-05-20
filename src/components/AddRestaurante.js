@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TextInput, Button, StyleSheet,Image } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import API from '../components/axios';
 import { useNavigation } from '@react-navigation/native'; // Importa el hook de navegación
@@ -10,18 +10,20 @@ const AddRestaurante = () => {
     const [restauranteData, setRestauranteData] = useState({
         nombre: '',
         ciudad: '',
-        provincia: "",
-        telefono: "",
-        imagen: null, 
+        provincia: '',
+        telefono: '',
+        imagen: '', 
     });
 
     const navigation = useNavigation(); // Obtiene el objeto de navegación
     const { state ,restaurantes, setRestaurantes} = useAuth();
     const userId = state.user?.id;
 
+    
     const handleChange = (name, value) => {
         setRestauranteData({ ...restauranteData, [name]: value });
     };
+
 
     const handleChooseImage = async () => {
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -37,13 +39,23 @@ const AddRestaurante = () => {
             quality: 1,
         });
 
-        console.log(result);
+        console.log(result.uri);
 
         if (!result.canceled) {
-            setRestauranteData({ ...restauranteData, imagen: result.uri });
+            const uri =  result.assets[0].uri
+            setRestauranteData(prevData => ({
+                ...prevData,
+                imagen: uri // Actualiza la propiedad de la imagen con la nueva URI
+            }));
+
         }
     
     };
+
+    useEffect(() => {
+        console.log(restauranteData); // Verificar la URL de la imagen después de actualizar el estado
+    }, [restauranteData.imagen]);
+
 
     const handleSubmit = async () => {
         try {
@@ -53,6 +65,7 @@ const AddRestaurante = () => {
                 } 
             }); 
             navigation.navigate('Home');
+            setRestaurantes([...restaurantes, restauranteData]);
         } catch (error) {
             console.error("Error al añadir el restaurante", error);
         }
@@ -90,16 +103,15 @@ const AddRestaurante = () => {
                     placeholder="Teléfono"
                     required
                 />
-                {/* <TextInput
-                    style={styles.input}
-                    value={restauranteData.imagen}
-                    onChangeText={(text) => handleChange('imagen', text)}
-                    placeholder="Url de la Imagen"
-                    required
-                /> */}
-                 <Button title="Seleccionar imagen" onPress={handleChooseImage} />
-                {restauranteData.imagen && <Image source={{ uri: restauranteData.imagen }} style={{ width: 200, height: 200 }} />}
                
+                <Button title="Seleccionar imagen" onPress={handleChooseImage} />
+                <View>
+                    {restauranteData.imagen ? (
+                        <Image source={{ uri: restauranteData.imagen }} style={{ width: 200, height: 200, margin:'auto' }} />
+                    ) : (
+                        <View style={{ margin:'auto' }}><Text>No image selected</Text></View>
+                    )}
+                </View>
                 <Button title="Añadir restaurante" onPress={handleSubmit} />
             </View>
         </View>

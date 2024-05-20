@@ -9,7 +9,7 @@ const AddMenu = () => {
     const [menuData, setMenuData] = useState({
         nombre: '',
         descripcion: '',
-        precio: "",
+        precio: '',
         imagen: '', 
     });
 
@@ -52,7 +52,7 @@ const AddMenu = () => {
                     placeholder="Descripcion"
                     required
                 />
-<TextInput
+                <TextInput
                     style={styles.input}
                     value={menuData.precio}
                     onChangeText={(text) => handleChange('precio', text)}

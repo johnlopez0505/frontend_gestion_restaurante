@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform ,KeyboardAvoidingView} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthProvider';
 import { validateEmail } from '../validation/validation';
@@ -41,7 +41,9 @@ function LoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+    behavior={Platform.OS === 'ios' ? 'padding' : null}
+    style={styles.container}>
       <View style={styles.loginForm}>
         <Text style={styles.title}>Iniciar Sesión</Text>
         <View style={styles.formControl}>
@@ -70,7 +72,7 @@ function LoginScreen() {
           <Text style={styles.link}>¿No tienes cuenta? Regístrate</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </KeyboardAvoidingView >
   );
 }
 

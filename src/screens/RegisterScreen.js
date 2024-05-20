@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, KeyboardAvoidingView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthProvider';
 import { validateEmail } from '../validation/validation';
@@ -46,7 +46,9 @@ function RegisterScreen() {
   }, [username, password, password2, fullName]);
 
   return (
-    <View style={styles.registerFormContainer}>
+    <KeyboardAvoidingView
+     behavior={Platform.OS === 'ios' ? 'padding' : null}
+     style={styles.registerFormContainer}>
       <View style={styles.registerForm}>
         <Text style={styles.title}>Crear cuenta</Text>
         <View style={styles.formControl}>
@@ -93,7 +95,7 @@ function RegisterScreen() {
           <Text style={styles.link}>¿Ya tienes cuenta? Inicia sesión</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
