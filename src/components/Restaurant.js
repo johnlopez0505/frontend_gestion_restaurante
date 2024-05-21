@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
   containerCard: {
     width:Platform.OS !== 'web'? '80%':'30%',
     marginBottom: 20,
-    padding: 10,
+    padding: 0,
     margin:10,
     backgroundColor: '#f5f5f5',
     borderRadius: 20,
@@ -37,13 +37,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row', // Alinea la imagen y el texto en una fila
   },
   imgContainer: {
-    width: '40%', // Ajusta el ancho de la imagen
-    marginRight: '5%', // Espacio entre la imagen y el texto
+    width: '45%', // Ajusta el ancho de la imagen
+    marginRight: '0%', // Espacio entre la imagen y el texto
   },
   imagen: {
     width: '100%',
     height: 100,
-    marginBottom: 10,
+    borderTopStartRadius:18,
+    borderBottomStartRadius:18,
+  
   },
   textContainer: {
     width: '55%', // Ajusta el ancho del contenedor de texto

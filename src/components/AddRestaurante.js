@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet,Image } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet,Image, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import API from '../components/axios';
+import * as FileSystem from 'expo-file-system';
 import { useNavigation } from '@react-navigation/native'; // Importa el hook de navegación
 import { useAuth } from '../context/AuthProvider';
 
@@ -18,6 +19,8 @@ const AddRestaurante = () => {
     const navigation = useNavigation(); // Obtiene el objeto de navegación
     const { state ,restaurantes, setRestaurantes} = useAuth();
     const userId = state.user?.id;
+    const [base64, setBase64] = useState(null);
+    const [img,setImg] = useState(null);
 
     
     const handleChange = (name, value) => {
@@ -43,10 +46,22 @@ const AddRestaurante = () => {
 
         if (!result.canceled) {
             const uri =  result.assets[0].uri
+            setImg(uri);
             setRestauranteData(prevData => ({
                 ...prevData,
                 imagen: uri // Actualiza la propiedad de la imagen con la nueva URI
             }));
+            if(Platform.OS !== 'web'){
+                console.log("entramos si es distinto de web")
+                // Leer el archivo de imagen y convertir a Base64
+                const base64 = await FileSystem.readAsStringAsync(uri, {
+                    encoding: FileSystem.EncodingType.Base64,
+                });
+                setImg(uri);
+                //source={{ uri: 'data:image/jpeg;base64,' + asset.base64 }}
+                setBase64(base64);
+                setRestauranteData({...restauranteData,imagen:'data:image/jpeg;base64,'+ base64});
+            }
 
         }
     
@@ -105,9 +120,9 @@ const AddRestaurante = () => {
                 />
                
                 <Button title="Seleccionar imagen" onPress={handleChooseImage} />
-                <View>
+                <View >
                     {restauranteData.imagen ? (
-                        <Image source={{ uri: restauranteData.imagen }} style={{ width: 200, height: 200, margin:'auto' }} />
+                        <Image source={{ uri: img }} style={styles.imagen} />
                     ) : (
                         <View style={{ margin:'auto' }}><Text>No image selected</Text></View>
                     )}
@@ -121,7 +136,7 @@ const AddRestaurante = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
+       marginTop:30,
         alignItems: 'center',
         paddingHorizontal: 20,
     },
@@ -131,7 +146,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     formContainer: {
-        width: '100%',
+        width: Platform.OS !== 'web' ? '100%' : '40%',
     },
     input: {
         height: 40,
@@ -143,6 +158,15 @@ const styles = StyleSheet.create({
     descriptionInput: {
         height: 100,
     },
+
+    imagen:{
+        width: 200,
+        height: 200,
+        margin:'auto',
+       borderRadius: 5,
+       marginTop:10,
+       marginBottom:10,
+    }
 });
 
 export default AddRestaurante;
