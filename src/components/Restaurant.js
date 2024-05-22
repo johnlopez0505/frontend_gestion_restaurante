@@ -21,7 +21,7 @@ const Restaurant = ({restaurant}) => {
 
 const styles = StyleSheet.create({
   containerCard: {
-    width:Platform.OS !== 'web'? '80%':'30%',
+    width:Platform.OS !== 'web'? '85%':'30%',
     marginBottom: 20,
     padding: 0,
     margin:10,
@@ -35,21 +35,30 @@ const styles = StyleSheet.create({
     elevation: 5,
     shadowOpacity: 0.8,
     flexDirection: 'row', // Alinea la imagen y el texto en una fila
+    overflow: Platform.OS === 'android' ? 'hidden' : "",
   },
+
   imgContainer: {
     width: '45%', // Ajusta el ancho de la imagen
-    marginRight: '0%', // Espacio entre la imagen y el texto
+    height: '100%',
+    margin: 'auto',
   },
+
   imagen: {
     width: '100%',
-    height: 100,
-    borderTopStartRadius:18,
-    borderBottomStartRadius:18,
+    height: 150,
+    borderTopStartRadius: Platform.OS !== 'android' ? 18 : 0,
+    borderBottomStartRadius:  Platform.OS !== 'android' ? 18 : 0,
+   
   
   },
+
   textContainer: {
     width: '55%', // Ajusta el ancho del contenedor de texto
+    height: '100%',
+    margin: 'auto',
   },
+
   text: {
     textAlign: 'center',
     marginBottom: 5,
