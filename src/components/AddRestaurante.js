@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet,Image, Platform } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet,Image, Platform, TouchableOpacity } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import API from '../components/axios';
 import * as FileSystem from 'expo-file-system';
@@ -67,6 +67,39 @@ const AddRestaurante = () => {
     
     };
 
+    const handleTakePhoto = async () => {
+        const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+        if (permissionResult.granted === false) {
+            alert('Se necesitan permisos para acceder a la cámara.');
+            return;
+        }
+
+        let result = await ImagePicker.launchCameraAsync({
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+        });
+
+        if (!result.canceled) {
+            const uri = result.assets[0].uri;
+            setImg(uri);
+            setRestauranteData(prevData => ({
+                ...prevData,
+                imagen: uri
+            }));
+            if (Platform.OS !== 'web') {
+                const base64 = await FileSystem.readAsStringAsync(uri, {
+                    encoding: FileSystem.EncodingType.Base64,
+                });
+                setBase64(base64);
+                setRestauranteData(prevData => ({
+                    ...prevData,
+                    imagen: 'data:image/jpeg;base64,' + base64
+                }));
+            }
+        }
+    };
+
     useEffect(() => {
         console.log(restauranteData); // Verificar la URL de la imagen después de actualizar el estado
     }, [restauranteData.imagen]);
@@ -118,16 +151,35 @@ const AddRestaurante = () => {
                     placeholder="Teléfono"
                     required
                 />
-               
-                <Button title="Seleccionar imagen" onPress={handleChooseImage} />
+                <View style={styles.buttonContainer}>
+                    {Platform.OS !== 'web'?(
+                    <>
+                        <TouchableOpacity style={styles.button} onPress={handleChooseImage}>
+                            <Text style={styles.buttonText}>Seleccionar imagen</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.button} onPress={handleTakePhoto}>
+                            <Text style={styles.buttonText}>Tomar foto</Text>
+                        </TouchableOpacity>
+
+                    </>
+                       
+                    ):(  
+                        <TouchableOpacity style={styles.button} onPress={handleChooseImage}>
+                            <Text style={styles.buttonText}>Seleccionar imagen</Text>
+                        </TouchableOpacity>
+                    )}
+                   
+                </View>
                 <View >
                     {restauranteData.imagen ? (
                         <Image source={{ uri: img }} style={styles.imagen} />
                     ) : (
-                        <View style={{ margin:'auto' }}><Text>No image selected</Text></View>
+                        <View style={{ margin:'auto', marginBottom:10 }}><Text>No image selected</Text></View>
                     )}
                 </View>
-                <Button title="Añadir restaurante" onPress={handleSubmit} />
+                <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+                    <Text style={styles.submitButtonText}>Añadir restaurante</Text>
+                </TouchableOpacity>
             </View>
         </View>
     );
@@ -166,7 +218,43 @@ const styles = StyleSheet.create({
        borderRadius: 5,
        marginTop:10,
        marginBottom:10,
-    }
+    },
+
+    buttonContainer: {
+        flexDirection: 'row',
+        justifyContent:Platform.OS !=='web'? 'space-between':'space-around',
+        alignItems: 'center',
+        marginBottom: 10,
+        marginTop:10,
+        width:'85%',
+        alignSelf:'center',
+    },
+    button: {
+        backgroundColor: '#007BFF',
+        padding: 10,
+        borderRadius: 8,
+        marginHorizontal: 5,
+        width:150,
+    },
+    buttonText: {
+        color: 'white',
+        fontSize: 14,
+        textAlign: 'center',
+    },
+    submitButton: {
+        backgroundColor: '#28a745',
+        padding: 15,
+        borderRadius: 10,
+        marginTop: 10,
+        alignItems: 'center',
+        width:'80%',
+        alignSelf:'center',
+    },
+    submitButtonText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
 });
 
 export default AddRestaurante;

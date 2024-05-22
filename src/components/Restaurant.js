@@ -56,7 +56,8 @@ const styles = StyleSheet.create({
   textContainer: {
     width: '55%', // Ajusta el ancho del contenedor de texto
     height: '100%',
-    margin: 'auto',
+    margin: Platform.OS === 'ios' ? 'auto' : 0,
+    paddingTop: Platform.OS === 'ios' ? 0 : 30,
   },
 
   text: {
