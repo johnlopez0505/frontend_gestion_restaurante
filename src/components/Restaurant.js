@@ -5,7 +5,7 @@ import { View, Text, Image, StyleSheet, Platform } from 'react-native';
 const Restaurant = ({restaurant}) => {
     return (
         <View style={styles.containerCard}>
-            <View style={styles.imgContainer} key={restaurant.id}>
+            <View style={styles.imgContainer} >
                 <Image source={{ uri: restaurant.imagen }} style={styles.imagen} />
             </View>
             <View style={styles.textContainer}>

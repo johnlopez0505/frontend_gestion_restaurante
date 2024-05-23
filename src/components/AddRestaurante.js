@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet,Image, Platform, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet,Image, Platform, TouchableOpacity } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import API from '../components/axios';
 import * as FileSystem from 'expo-file-system';
@@ -155,7 +155,7 @@ const AddRestaurante = () => {
                     {Platform.OS !== 'web'?(
                     <>
                         <TouchableOpacity style={styles.button} onPress={handleChooseImage}>
-                            <Text style={styles.buttonText}>Seleccionar imagen</Text>
+                            <Text style={styles.buttonText}>{img === null ? 'Seleccionar imagen': 'Cambiar imagen'}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.button} onPress={handleTakePhoto}>
                             <Text style={styles.buttonText}>Tomar foto</Text>
@@ -165,7 +165,7 @@ const AddRestaurante = () => {
                        
                     ):(  
                         <TouchableOpacity style={styles.button} onPress={handleChooseImage}>
-                            <Text style={styles.buttonText}>Seleccionar imagen</Text>
+                            <Text style={styles.buttonText}>{img === null ? 'Seleccionar imagen': 'Cambiar imagen'}</Text>
                         </TouchableOpacity>
                     )}
                    
