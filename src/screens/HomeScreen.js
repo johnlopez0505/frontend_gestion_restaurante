@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { View, SafeAreaView, Text, TouchableOpacity} from 'react-native';
 import { styles } from '../styles/styles'; // Cambié la importación a los estilos
 import { createStackNavigator } from '@react-navigation/stack';
-import ListRestaurantScreen from '../screens/ListRestaurantScreen';
+import ListRestaurantScreen from './RestaurantScreen';
 import { useAuth } from '../context/AuthProvider';
 import { useNavigation } from '@react-navigation/native';
 

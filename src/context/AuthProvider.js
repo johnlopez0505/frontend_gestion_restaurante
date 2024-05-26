@@ -30,8 +30,9 @@ export const AuthProvider = ({ children }) => {
         isAuthenticated: false,
         user:{
             "id":"",
-            "email": "",
-            "fullName": ""
+            "username": "",
+            "fullName": "",
+            "rol":"",
         },
         token: null,
         refreshToken: null,
@@ -68,11 +69,11 @@ export const AuthProvider = ({ children }) => {
     const login = async (username, password) => {
         try {
             const response = await axios.post('https://backend-fbwq.onrender.com/api/auth/login', { username, password });
-            const { token, refreshToken, fullName, id  } = response.data;
+            const { token, refreshToken, fullName, id, rol } = response.data;
             await AsyncStorage.setItem('token', token); // Guardar el token en AsyncStorage
             await AsyncStorage.setItem('refreshToken', refreshToken); // Guardar el refreshToken en el AsyncStorage
             // Guardar el usuario en AsyncStorage
-            const user = { id, fullName };
+            const user = { id, fullName, rol, username };
             await AsyncStorage.setItem('user', JSON.stringify(user));
     
             dispatch({ type: 'LOGIN_SUCCESS', payload: { user, token, refreshToken } });

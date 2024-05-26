@@ -4,18 +4,16 @@ import { NavigationContainer } from '@react-navigation/native';
 import PrivateRoute from './src/components/PrivateRoute';
 
 export default function App() {
+
   return (
-  <>
-    <NavigationContainer>
-      <AuthProvider>
-        <StatusBar style="auto" />
-        <PrivateRoute />
-      </AuthProvider>
-    </NavigationContainer>
-  </>
-      
-     
-    
+    <>
+      <NavigationContainer>
+        <AuthProvider>
+          <StatusBar style="auto" />
+          <PrivateRoute />
+        </AuthProvider>
+      </NavigationContainer>
+    </>  
   );
 }
 

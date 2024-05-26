@@ -19,39 +19,51 @@ const Menu = ({menu}) => {
 }
 
 const styles = StyleSheet.create({
-    containerCard: {
-      width:Platform.OS !== 'web'? '80%':'30%',
-      marginBottom: 20,
-      padding: 10,
-      margin:10,
-      backgroundColor: '#f5f5f5',
-      borderRadius: 20,
-      borderWidth: 2,
-      borderColor: 'black',
-      shadowColor: 'black',
+  containerCard: {
+    width:Platform.OS !== 'web'? '85%':'30%',
+    marginBottom: 20,
+    padding: 0,
+    margin:10,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: 'black',
+    shadowColor: 'black',
     shadowOffset: { width: 0, height: 0 },
     shadowRadius: 9,
     elevation: 5,
     shadowOpacity: 0.8,
-      flexDirection: 'row', // Alinea la imagen y el texto en una fila
-    },
-    imgContainer: {
-      width: '40%', // Ajusta el ancho de la imagen
-      marginRight: '5%', // Espacio entre la imagen y el texto
-    },
-    imagen: {
-      width: '100%',
-      height: 100,
-      marginBottom: 10,
-    },
-    textContainer: {
-      width: '55%', // Ajusta el ancho del contenedor de texto
-    },
-    text: {
-      textAlign: 'center',
-      marginBottom: 5,
-    },
-  });
+    flexDirection: 'row', // Alinea la imagen y el texto en una fila
+    overflow: Platform.OS === 'android' ? 'hidden' : "",
+  },
+
+  imgContainer: {
+    width: '45%', // Ajusta el ancho de la imagen
+    height: '100%',
+    margin: 'auto',
+  },
+
+  imagen: {
+    width: '100%',
+    height: 150,
+    borderTopStartRadius: Platform.OS !== 'android' ? 18 : 0,
+    borderBottomStartRadius:  Platform.OS !== 'android' ? 18 : 0,
+   
+  
+  },
+
+  textContainer: {
+    width: '55%', // Ajusta el ancho del contenedor de texto
+    height: '100%',
+    margin: Platform.OS === 'ios' ? 'auto' : 0,
+    paddingTop: Platform.OS === 'ios' ? 0 : 30,
+  },
+
+  text: {
+    textAlign: 'center',
+    marginBottom: 5,
+  },
+});
   
 
 export default Menu;

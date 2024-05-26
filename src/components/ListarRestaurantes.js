@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import API from '../components/axios';
 import Restaurant from '../components/Restaurant';
 import { useAuth } from '../context/AuthProvider';
+import { Provider as PaperProvider } from 'react-native-paper';
 
 const ListRestaurant = () => {
 
@@ -28,26 +29,24 @@ const ListRestaurant = () => {
  
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
-       <View style={styles.containerRestaurante}>
-          {
-            restaurantes === undefined? <Text>No hay restaurantes</Text>:
-            restaurantes.map(restaurants => (
-              <Restaurant key={restaurants.id} restaurant={restaurants} />
-            ))
-          }
-        </View>
-    </ScrollView>
+   
+        <ScrollView >
+        <PaperProvider>
+            <View style={styles.containerRestaurante}>
+                {
+                    restaurantes === undefined? <Text>No hay restaurantes</Text>:
+                    restaurantes.map(restaurants => (
+                    <Restaurant key={restaurants.id} restaurant={restaurants} />
+                    ))
+                }
+            </View>
+        </PaperProvider>
+        </ScrollView>
+   
   );
 };
 
 const styles = StyleSheet.create({
-
-  scrollContainer: {
-    flexGrow: 1,
-    paddingTop: 5,
-    alignItems: 'center',
-  },
 
   containerRestaurante: {
     flexDirection: 'row',
@@ -58,7 +57,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
     justifyContent: 'center',
     alignItems: 'row',
-    backgroundColor:'yellow',
+    backgroundColor:'white',
     minWidth: '100%',
   },
 });

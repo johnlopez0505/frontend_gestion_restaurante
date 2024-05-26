@@ -4,3 +4,13 @@ export const validateEmail = (email) => {
     );
 };
 
+// Función de validación para el número de teléfono
+export const validarTelefono = (telefono) => {
+    return /^[679]\d{8}$/.test(telefono);
+}
+
+// Función para formatear el número de teléfono con espacios cada tres dígitos
+export const formatearTelefono = (telefono) => {
+    return telefono.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
+}
+

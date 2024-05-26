@@ -5,11 +5,11 @@ import LoginScreen from '../screens/LoginScreen';
 import HomeScreen from '../screens/HomeScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import AddRestaurante from './AddRestaurante';
-import ListRestaurantScreen from '../screens/ListRestaurantScreen';
 import Loading from './Loading';
 import AddMenu from './AddMenu';
 import ListMenu from './ListMenus';
 import { Platform } from 'react-native';
+import RestaurantScreen from '../screens/RestaurantScreen';
 
 const Stack = createStackNavigator();
 
@@ -50,7 +50,7 @@ function PrivateRoute() {
          <Stack.Screen name="Register" component={RegisterScreen}/>
          <Stack.Screen name='Add restaurante' component={AddRestaurante} />
          <Stack.Screen name='Add menu' component={AddMenu} />
-         <Stack.Screen name='Restaurantes' component={ListRestaurantScreen} />
+         <Stack.Screen name='Restaurantes' component={RestaurantScreen} />
          <Stack.Screen name='Menús' component={ListMenu} />
       </Stack.Navigator>
   );

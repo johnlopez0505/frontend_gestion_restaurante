@@ -1,8 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, Platform } from 'react-native';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Button, Dialog, Portal, Provider } from 'react-native-paper';
 
 
 const Restaurant = ({restaurant}) => {
+
+  const [visible, setVisible] = useState(false);
+  const showDialog = () => setVisible(true);
+  const hideDialog = () => setVisible(false);
+
+  const handlerDelete = () => {
+    console.log(restaurant.id);
+  }
+  const handlerEdit = () => {
+    console.log(restaurant.id);
+  }
     return (
         <View style={styles.containerCard}>
             <View style={styles.imgContainer} >
@@ -13,6 +26,22 @@ const Restaurant = ({restaurant}) => {
                 <Text style={styles.text}>{restaurant.ciudad}</Text>
                 <Text style={styles.text}>{restaurant.provincia}</Text>
                 <Text style={styles.text}>{restaurant.telefono}</Text>
+                <View style={styles.iconContainer}>
+                  <MaterialCommunityIcons name='delete' style={styles.delete} onPress={showDialog}/>
+                  <MaterialCommunityIcons name='pencil' style={styles.edit} onPress={handlerEdit}/>
+                </View>
+                <Portal>
+                  <Dialog visible={visible} onDismiss={hideDialog} dismissable={false} style={styles.dialog}>
+                    <Dialog.Title style={styles.dialogTitle}>Confirmación</Dialog.Title>
+                    <Dialog.Content style={styles.dialogContent}>
+                      <Text style={styles.dialogText}>¿Estás seguro de que quieres eliminar este restaurante?</Text>
+                    </Dialog.Content>
+                    <Dialog.Actions style={styles.dialogActions}>
+                      <Button onPress={hideDialog} color='#2196f3'>Cancelar</Button>
+                      <Button onPress={handlerDelete} color='#f44336'>Eliminar</Button>
+                    </Dialog.Actions>
+                  </Dialog>
+                </Portal>
             </View>
         </View>
     )
@@ -62,7 +91,41 @@ const styles = StyleSheet.create({
 
   text: {
     textAlign: 'center',
-    marginBottom: 5,
+  },
+
+  iconContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 5,
+  },
+
+  delete: {
+    fontSize:30,
+    color:'black',
+  },
+
+  edit:{
+    fontSize:30,
+    color:'black',
+  },
+
+  dialog: {
+    backgroundColor: '#f5f5f5',
+    borderRadius: 10,
+  },
+  dialogTitle: {
+    textAlign: 'center',
+    color: '#333',
+  },
+  dialogContent: {
+    alignItems: 'center',
+  },
+  dialogText: {
+    fontSize: 16,
+    color: '#555',
+  },
+  dialogActions: {
+    justifyContent: 'space-between',
   },
 });
 

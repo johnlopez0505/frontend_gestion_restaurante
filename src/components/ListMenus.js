@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import API from './axios';
 import Menu from './Menu';
 import { useAuth } from '../context/AuthProvider';
@@ -28,18 +28,27 @@ const ListMenus = () => {
  
 
   return (
-    <ScrollView contentContainerStyle={styles.containerMenu}>
-      {
-        menus === undefined? <Text>No hay menús</Text>:
-        menus.map(menu => (
-          <Menu key={menu.id} menu={menu} />
-        ))
-      }
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.containerMenu}>
+        {
+          menus === undefined? <Text>No hay menús</Text>:
+          menus.map(menu => (
+            <Menu key={menu.id} menu={menu} />
+          ))
+        }
+      </View>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+
+  scrollContainer: {
+    flexGrow: 1,
+    paddingTop: 5,
+    alignItems: 'center',
+  },
+
   containerMenu: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -49,7 +58,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
     justifyContent: 'center',
     alignItems: 'row',
-    backgroundColor:'yellow'
+    backgroundColor:'#EBDEF0',
+    minWidth: '100%',
   },
 });
 

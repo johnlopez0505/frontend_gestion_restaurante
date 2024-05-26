@@ -5,6 +5,7 @@ import API from '../components/axios';
 import * as FileSystem from 'expo-file-system';
 import { useNavigation } from '@react-navigation/native'; // Importa el hook de navegación
 import { useAuth } from '../context/AuthProvider';
+import { formatearTelefono, validarTelefono } from '../validation/validation';
 
 const AddRestaurante = () => {
     
@@ -19,6 +20,7 @@ const AddRestaurante = () => {
     const navigation = useNavigation(); // Obtiene el objeto de navegación
     const { state ,restaurantes, setRestaurantes} = useAuth();
     const userId = state.user?.id;
+    const [error, setError] = useState('');
     const [base64, setBase64] = useState(null);
     const [img,setImg] = useState(null);
 
@@ -104,8 +106,46 @@ const AddRestaurante = () => {
         console.log(restauranteData); // Verificar la URL de la imagen después de actualizar el estado
     }, [restauranteData.imagen]);
 
+    const handleCancel = () => {
+        navigation.navigate('Home'); // Asegúrate de que 'Home' es el nombre de la ruta de tu página principal
+    };
+
 
     const handleSubmit = async () => {
+        if (!restauranteData.nombre && !restauranteData.ciudad && !restauranteData.provincia 
+            && !restauranteData.telefono && !restauranteData.imagen) {
+            setError('Por favor, ingrese todos los campos');
+            return;
+          }
+        if (!restauranteData.nombre) {
+            setError('Por favor, ingrese el nombre del restaurante');
+            return;
+        }
+        if (!restauranteData.ciudad ) {
+            setError('Por favor, ingrese la ciudad');
+            return;
+        }
+        if (!restauranteData.provincia) {
+            setError('Por favor, ingrese la provincia');
+            return;
+        }
+        if (!restauranteData.telefono ) {
+            setError('Por favor, ingrese el telefono del restaurante');
+            return;
+        }
+        if (!validarTelefono(restauranteData.telefono.trim())) {
+            setError('El número de teléfono no es válido. Debe tener 9 dígitos y comenzar por 6, 7 u 9');
+            return;
+        }
+        const telefonoFormateado = formatearTelefono(restauranteData.telefono);
+        setRestauranteData({ ...restauranteData, telefono: telefonoFormateado });
+
+        if (!restauranteData.imagen) {
+            setError('Por favor, ingrese la imagen del restaurante');
+            return;
+        }
+       
+
         try {
             await API.post('/restaurantes/add', { ...restauranteData }, { 
                 headers: {
@@ -118,6 +158,15 @@ const AddRestaurante = () => {
             console.error("Error al añadir el restaurante", error);
         }
     };
+
+    useEffect(() => {
+        setError(null); 
+      }, [restauranteData.nombre, 
+            restauranteData.ciudad, 
+            restauranteData.provincia,
+            restauranteData.telefono, 
+            restauranteData.imagen
+        ]);
 
     return (
         <View style={styles.container}>
@@ -151,13 +200,14 @@ const AddRestaurante = () => {
                     placeholder="Teléfono"
                     required
                 />
+                 {error ? <Text style={styles.error}>{error}</Text> : null}
                 <View style={styles.buttonContainer}>
                     {Platform.OS !== 'web'?(
                     <>
                         <TouchableOpacity style={styles.button} onPress={handleChooseImage}>
-                            <Text style={styles.buttonText}>{img === null ? 'Seleccionar imagen': 'Cambiar imagen'}</Text>
+                            <Text style={styles.buttonText}>Seleccionar imagen</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.button} onPress={handleTakePhoto}>
+                        <TouchableOpacity style={styles.buttonFoto} onPress={handleTakePhoto}>
                             <Text style={styles.buttonText}>Tomar foto</Text>
                         </TouchableOpacity>
 
@@ -165,7 +215,7 @@ const AddRestaurante = () => {
                        
                     ):(  
                         <TouchableOpacity style={styles.button} onPress={handleChooseImage}>
-                            <Text style={styles.buttonText}>{img === null ? 'Seleccionar imagen': 'Cambiar imagen'}</Text>
+                            <Text style={styles.buttonText}>Seleccionar imagen</Text>
                         </TouchableOpacity>
                     )}
                    
@@ -176,10 +226,16 @@ const AddRestaurante = () => {
                     ) : (
                         <View style={{ margin:'auto', marginBottom:10 }}><Text>No image selected</Text></View>
                     )}
+                </View >
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+                        <Text style={styles.submitButtonText}>Añadir</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.submitButtonCancelar} onPress={handleCancel}>
+                        <Text style={styles.submitButtonText}>Cancelar</Text>
+                    </TouchableOpacity>
                 </View>
-                <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-                    <Text style={styles.submitButtonText}>Añadir restaurante</Text>
-                </TouchableOpacity>
+               
             </View>
         </View>
     );
@@ -188,7 +244,7 @@ const AddRestaurante = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-       marginTop:30,
+        marginTop:30,
         alignItems: 'center',
         paddingHorizontal: 20,
     },
@@ -212,12 +268,12 @@ const styles = StyleSheet.create({
     },
 
     imagen:{
-        width: 200,
-        height: 200,
+        width:200,
+        height: Platform.OS !== 'android' ? 200 : 150,
         margin:'auto',
-       borderRadius: 5,
-       marginTop:10,
-       marginBottom:10,
+        borderRadius: 5,
+        marginTop:10,
+        marginBottom:10,
     },
 
     buttonContainer: {
@@ -229,13 +285,20 @@ const styles = StyleSheet.create({
         width:'85%',
         alignSelf:'center',
     },
-    button: {
+    buttonSelect: {
         backgroundColor: '#007BFF',
+        width:'55%',
         padding: 10,
         borderRadius: 8,
-        marginHorizontal: 5,
-        width:150,
     },
+
+    buttonFoto:{
+        backgroundColor: '#007BFF',
+        width:'40%',
+        padding: 10,
+        borderRadius: 8,
+    },
+
     buttonText: {
         color: 'white',
         fontSize: 14,
@@ -247,13 +310,29 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginTop: 10,
         alignItems: 'center',
-        width:'80%',
+        width:'45%',
         alignSelf:'center',
     },
+
+    submitButtonCancelar: {
+        backgroundColor: 'red',
+        padding: 15,
+        borderRadius: 10,
+        marginTop: 10,
+        alignItems: 'center',
+        width:'45%',
+        alignSelf:'center',
+    },
+
     submitButtonText: {
         color: 'white',
         fontSize: 16,
         fontWeight: 'bold',
+    },
+    error: {
+        color: 'red',
+        marginBottom: 10,
+        margin:'auto',
     },
 });
 
