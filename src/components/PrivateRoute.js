@@ -10,6 +10,7 @@ import AddMenu from './AddMenu';
 import ListMenu from './ListMenus';
 import { Platform } from 'react-native';
 import RestaurantScreen from '../screens/RestaurantScreen';
+import EditRestaurante from './EditRestaurante';
 
 const Stack = createStackNavigator();
 
@@ -49,6 +50,7 @@ function PrivateRoute() {
         }
          <Stack.Screen name="Register" component={RegisterScreen}/>
          <Stack.Screen name='Add restaurante' component={AddRestaurante} />
+         <Stack.Screen name='Edit restaurante' component={EditRestaurante} />
          <Stack.Screen name='Add menu' component={AddMenu} />
          <Stack.Screen name='Restaurantes' component={RestaurantScreen} />
          <Stack.Screen name='Menús' component={ListMenu} />

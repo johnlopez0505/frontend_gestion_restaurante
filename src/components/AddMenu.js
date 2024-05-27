@@ -172,17 +172,17 @@ const AddMenu = () => {
                 <View style={styles.buttonContainer}>
                     {Platform.OS !== 'web'?(
                     <>
-                        <TouchableOpacity style={styles.button} onPress={handleChooseImage}>
+                        <TouchableOpacity style={styles.buttonSelect} onPress={handleChooseImage}>
                             <Text style={styles.buttonText}>Seleccionar imagen</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.button} onPress={handleTakePhoto}>
+                        <TouchableOpacity style={styles.buttonFoto} onPress={handleTakePhoto}>
                             <Text style={styles.buttonText}>Tomar foto</Text>
                         </TouchableOpacity>
 
                     </>
                        
                     ):(  
-                        <TouchableOpacity style={styles.button} onPress={handleChooseImage}>
+                        <TouchableOpacity style={styles.buttonSelect} onPress={handleChooseImage}>
                             <Text style={styles.buttonText}>Seleccionar imagen</Text>
                         </TouchableOpacity>
                     )}
@@ -265,6 +265,21 @@ const styles = StyleSheet.create({
         fontSize: 14,
         textAlign: 'center',
     },
+
+    buttonSelect: {
+        backgroundColor: '#007BFF',
+        width:'55%',
+        padding: 10,
+        borderRadius: 8,
+    },
+
+    buttonFoto:{
+        backgroundColor: '#007BFF',
+        width:'40%',
+        padding: 10,
+        borderRadius: 8,
+    },
+
     submitButton: {
         backgroundColor: '#28a745',
         padding: 15,

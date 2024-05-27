@@ -2,19 +2,24 @@ import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, Platform } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Button, Dialog, Portal, Provider } from 'react-native-paper';
+import { TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import EditRestaurante from './EditRestaurante';
 
 
 const Restaurant = ({restaurant}) => {
 
   const [visible, setVisible] = useState(false);
+  const navigation = useNavigation();
   const showDialog = () => setVisible(true);
   const hideDialog = () => setVisible(false);
 
   const handlerDelete = () => {
     console.log(restaurant.id);
+    hideDialog();
   }
   const handlerEdit = () => {
-    console.log(restaurant.id);
+    navigation.navigate('Edit restaurante', { restaurante: restaurant });
   }
     return (
         <View style={styles.containerCard}>
@@ -30,19 +35,23 @@ const Restaurant = ({restaurant}) => {
                   <MaterialCommunityIcons name='delete' style={styles.delete} onPress={showDialog}/>
                   <MaterialCommunityIcons name='pencil' style={styles.edit} onPress={handlerEdit}/>
                 </View>
-                <Portal>
-                  <Dialog visible={visible} onDismiss={hideDialog} dismissable={false} style={styles.dialog}>
-                    <Dialog.Title style={styles.dialogTitle}>Confirmación</Dialog.Title>
-                    <Dialog.Content style={styles.dialogContent}>
-                      <Text style={styles.dialogText}>¿Estás seguro de que quieres eliminar este restaurante?</Text>
-                    </Dialog.Content>
-                    <Dialog.Actions style={styles.dialogActions}>
-                      <Button onPress={hideDialog} color='#2196f3'>Cancelar</Button>
-                      <Button onPress={handlerDelete} color='#f44336'>Eliminar</Button>
-                    </Dialog.Actions>
-                  </Dialog>
-                </Portal>
             </View>
+            <Portal>
+              <Dialog visible={visible} onDismiss={hideDialog} dismissable={false} style={styles.dialog}>
+                <Dialog.Title style={styles.dialogTitle}>Confirmación</Dialog.Title>
+                <Dialog.Content style={styles.dialogContent}>
+                  <Text style={styles.dialogText}>¿Estás seguro de que quieres eliminar este restaurante?</Text>
+                </Dialog.Content>
+                <Dialog.Actions style={styles.dialogActions}>
+                    <TouchableOpacity style={styles.submitButton} onPress={handlerDelete}>
+                        <Text style={styles.submitButtonText}>Eliminar</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.submitButtonCancelar} onPress={hideDialog}>
+                        <Text style={styles.submitButtonText}>Cancelar</Text>
+                    </TouchableOpacity>
+                </Dialog.Actions>
+              </Dialog>
+            </Portal>
         </View>
     )
 }
@@ -127,6 +136,42 @@ const styles = StyleSheet.create({
   dialogActions: {
     justifyContent: 'space-between',
   },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent:Platform.OS !=='web'? 'space-between':'space-around',
+    alignItems: 'center',
+    marginBottom: 10,
+    marginTop:10,
+    width:'85%',
+    alignSelf:'center',
+  },
+
+  submitButton: {
+    backgroundColor: '#28a745',
+    padding: 15,
+    borderRadius: 10,
+    marginTop: 10,
+    alignItems: 'center',
+    width:'45%',
+    alignSelf:'center',
+},
+
+submitButtonCancelar: {
+    backgroundColor: 'red',
+    padding: 15,
+    borderRadius: 10,
+    marginTop: 10,
+    alignItems: 'center',
+    width:'45%',
+    alignSelf:'center',
+},
+
+submitButtonText: {
+  color: 'white',
+  fontSize: 16,
+  fontWeight: 'bold',
+},
+
 });
 
   

@@ -6,15 +6,19 @@ import * as FileSystem from 'expo-file-system';
 import { useNavigation } from '@react-navigation/native'; // Importa el hook de navegación
 import { useAuth } from '../context/AuthProvider';
 import { formatearTelefono, validarTelefono } from '../validation/validation';
+import { useRoute } from '@react-navigation/native';
 
-const AddRestaurante = () => {
-    
+
+const EditRestaurante = () => {
+
+    const route = useRoute();
+    const { restaurante } = route.params;    
     const [restauranteData, setRestauranteData] = useState({
-        nombre: '',
-        ciudad: '',
-        provincia: '',
-        telefono: '',
-        imagen: '', 
+        nombre: restaurante.nombre,
+        ciudad: restaurante.ciudad,
+        provincia: restaurante.provincia,
+        telefono: restaurante.telefono,
+        imagenEdit: "", 
     });
 
     const navigation = useNavigation(); // Obtiene el objeto de navegación
@@ -23,6 +27,10 @@ const AddRestaurante = () => {
     const [error, setError] = useState('');
     const [base64, setBase64] = useState(null);
     const [img,setImg] = useState(null);
+
+    useEffect (() => {
+        setImg(restaurante.imagen);
+    },[])
 
     
     const handleChange = (name, value) => {
@@ -144,15 +152,15 @@ const AddRestaurante = () => {
        
 
         try {
-            await API.post('/restaurantes/add', { ...restauranteData }, { 
+            await API.put(`/restaurantes/edit/${restaurante.id}`, { ...restauranteData }, { 
                 headers: {
                     'id': userId
                 } 
             }); 
-            navigation.navigate('Home');
+            navigation.navigate('Restaurantes');
             setRestaurantes([...restaurantes, restauranteData]);
         } catch (error) {
-            console.error("Error al añadir el restaurante", error);
+            console.error("Error al editar el restaurante", error);
         }
     };
 
@@ -167,7 +175,7 @@ const AddRestaurante = () => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.heading}>Añadir un nuevo restaurante</Text>
+            <Text style={styles.heading}>Editar  restaurante</Text>
             <View style={styles.formContainer}>
                 <TextInput
                     style={styles.input}
@@ -218,7 +226,7 @@ const AddRestaurante = () => {
                    
                 </View>
                 <View >
-                    {restauranteData.imagen ? (
+                    {restauranteData.imagen || img ? (
                         <Image source={{ uri: img }} style={styles.imagen} />
                     ) : (
                         <View style={{ margin:'auto', marginBottom:10 }}><Text>No image selected</Text></View>
@@ -226,7 +234,7 @@ const AddRestaurante = () => {
                 </View >
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-                        <Text style={styles.submitButtonText}>Añadir</Text>
+                        <Text style={styles.submitButtonText}>Editar</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.submitButtonCancelar} onPress={handleCancel}>
                         <Text style={styles.submitButtonText}>Cancelar</Text>
@@ -333,4 +341,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default AddRestaurante;
+export default EditRestaurante;
