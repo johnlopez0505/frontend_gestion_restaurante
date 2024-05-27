@@ -54,6 +54,7 @@ function PrivateRoute() {
          <Stack.Screen name='Add menu' component={AddMenu} />
          <Stack.Screen name='Restaurantes' component={RestaurantScreen} />
          <Stack.Screen name='Menús' component={ListMenu} />
+         <Stack.Screen name='Reservas' component={ListMenu} />
       </Stack.Navigator>
   );
 }

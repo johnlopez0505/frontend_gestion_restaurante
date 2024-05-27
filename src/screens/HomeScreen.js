@@ -36,12 +36,12 @@ const HomeScreen = () => {
             <Text>Menús</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => navigation.navigate('Add restaurante')} style={styles.sidebarLink}>
-            <Text>Add Restaurant</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Reservas')} style={styles.sidebarLink}>
+            <Text>Reservas</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => navigation.navigate('Add menu')} style={styles.sidebarLink}>
-            <Text>Add Menú</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Usuarios')} style={styles.sidebarLink}>
+            <Text>Usuarios</Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={ handleLogout } style={styles.sidebarLink}>
@@ -50,9 +50,9 @@ const HomeScreen = () => {
         </View>
         <View style={styles.main}>
           {/* <Text style={styles.tex}>Hola como vamos</Text>  */}
-          <Stack.Navigator>
+          {/* <Stack.Navigator>
             <Stack.Screen name="Restaurantes" component={ ListRestaurantScreen } />
-          </Stack.Navigator>
+          </Stack.Navigator> */}
         
         </View>
       </View>

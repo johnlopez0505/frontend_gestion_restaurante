@@ -1,28 +1,47 @@
 import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, Platform } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { Button, Dialog, Portal, Provider } from 'react-native-paper';
+import {  Dialog, Portal } from 'react-native-paper';
 import { TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import EditRestaurante from './EditRestaurante';
-
+import { useAuth } from '../context/AuthProvider';
+import API from './axios';
 
 const Restaurant = ({restaurant}) => {
 
   const [visible, setVisible] = useState(false);
   const navigation = useNavigation();
+  const {setRestaurantes, restaurantes,state} = useAuth();
+  const userId = state.user?.id;
   const showDialog = () => setVisible(true);
   const hideDialog = () => setVisible(false);
 
-  const handlerDelete = () => {
-    console.log(restaurant.id);
+  const handlerDelete = async () => {
+    try {
+      const response = await API.delete(`/restaurantes/delete/${restaurant.id}`,{ 
+          headers: {
+              'id': userId
+          } 
+      }); 
+      if(response.data.result ==="ok"){
+        console.log(response.data.message);
+        const updatedRestaurante = restaurantes.filter(restaurante => restaurante.id !== restaurant.id);
+        setRestaurantes(updatedRestaurante);
+        navigation.navigate('Restaurantes');
+      }else{
+        console.log(response.data.message);
+      }
+      
+  } catch (error) {
+      console.error("Error al eliminar el restaurante", error);
+  }
     hideDialog();
   }
   const handlerEdit = () => {
     navigation.navigate('Edit restaurante', { restaurante: restaurant });
   }
     return (
-        <View style={styles.containerCard}>
+        <View style={styles.containerCard} key={restaurant.id}>
             <View style={styles.imgContainer} >
                 <Image source={{ uri: restaurant.imagen }} style={styles.imagen} />
             </View>

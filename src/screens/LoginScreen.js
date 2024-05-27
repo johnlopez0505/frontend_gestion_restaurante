@@ -4,7 +4,8 @@ import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthProvider';
 import { validateEmail } from '../validation/validation';
 
-function LoginScreen() {
+const LoginScreen = () => {
+  
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');

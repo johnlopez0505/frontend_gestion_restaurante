@@ -104,7 +104,7 @@ const AddRestaurante = () => {
     }, [restauranteData.imagen]);
 
     const handleCancel = () => {
-        navigation.navigate('Home'); // Asegúrate de que 'Home' es el nombre de la ruta de tu página principal
+        navigation.navigate('Restaurantes'); // Asegúrate de que 'Home' es el nombre de la ruta de tu página principal
     };
 
 
@@ -149,7 +149,7 @@ const AddRestaurante = () => {
                     'id': userId
                 } 
             }); 
-            navigation.navigate('Home');
+            navigation.navigate('Restaurantes');
             setRestaurantes([...restaurantes, restauranteData]);
         } catch (error) {
             console.error("Error al añadir el restaurante", error);
