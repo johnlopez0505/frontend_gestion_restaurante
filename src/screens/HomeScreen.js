@@ -22,6 +22,7 @@ const HomeScreen = () => {
 
 
   return (
+    
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Sistema de Gestión de reservas</Text>

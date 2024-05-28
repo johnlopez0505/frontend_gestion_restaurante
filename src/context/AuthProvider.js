@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const [state, dispatch] = useReducer(authReducer, initialState);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [restaurantes, setRestaurantes] = useState([]);
     const [menus, setMenus] = useState([]);
     const [usuarios, setUsuarios] = useState([]);
@@ -153,7 +153,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ login, register, logout, getToken, state, loading,
+        <AuthContext.Provider value={{ login, register, logout, getToken, state, loading, setLoading,
         setRestaurantes,restaurantes,setMenus,menus, setReservas,
         reservas,setUsuarios,usuarios, urlSolicitud, setUrlSolicitud}}>
             {children}

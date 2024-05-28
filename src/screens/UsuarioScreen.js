@@ -1,10 +1,12 @@
+import { View } from "react-native";
+import ListUsuarios from "../components/ListUsuarios";
 
 
 const UsuarioScreen = () => {
 
     return(
         <View>
-            <Text>UsuarioScreen</Text>
+            <ListUsuarios/>
         </View>
     )
 }
