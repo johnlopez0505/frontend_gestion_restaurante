@@ -2,7 +2,6 @@ import React, { createContext, useContext, useReducer, useState, useEffect } fro
 import axios from 'axios';
 // import { AsyncStorage } from 'react-native'; 
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Importar AsyncStorage desde 'react-native'
-import API from '../components/axios'; // Importar la instancia de axios configurada
 
 const AuthContext = createContext();
 
@@ -67,6 +66,7 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (username, password) => {
+        setLoading(true);
         try {
             const response = await axios.post('https://backend-fbwq.onrender.com/api/auth/login', { username, password });
             const { token, refreshToken, fullName, id, rol } = response.data;
@@ -77,7 +77,9 @@ export const AuthProvider = ({ children }) => {
             await AsyncStorage.setItem('user', JSON.stringify(user));
     
             dispatch({ type: 'LOGIN_SUCCESS', payload: { user, token, refreshToken } });
+            setLoading(false);
         } catch (error) {
+            setLoading(false);
             console.error("Error durante el inicio de sesión", error);
             dispatch({ type: 'LOGIN_FAILED', payload: error.response.data || 'Error al iniciar sesión' })
         }

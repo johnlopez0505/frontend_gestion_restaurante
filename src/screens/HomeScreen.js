@@ -6,6 +6,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import ListRestaurantScreen from './RestaurantScreen';
 import { useAuth } from '../context/AuthProvider';
 import { useNavigation } from '@react-navigation/native';
+import Loading from '../components/Loading';
 
 
 const HomeScreen = () => {
@@ -51,9 +52,9 @@ const HomeScreen = () => {
         </View>
         <View style={styles.main}>
           {/* <Text style={styles.tex}>Hola como vamos</Text>  */}
-          {/* <Stack.Navigator>
-            <Stack.Screen name="Restaurantes" component={ ListRestaurantScreen } />
-          </Stack.Navigator> */}
+        {/* <Stack.Navigator>
+          <Stack.Screen name="Loading" component={ Loading } />
+        </Stack.Navigator> */}
         
         </View>
       </View>

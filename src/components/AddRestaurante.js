@@ -6,6 +6,7 @@ import * as FileSystem from 'expo-file-system';
 import { useNavigation } from '@react-navigation/native'; // Importa el hook de navegación
 import { useAuth } from '../context/AuthProvider';
 import { formatearTelefono, validarTelefono } from '../validation/validation';
+import Loading from './Loading';
 
 const AddRestaurante = () => {
     
@@ -18,7 +19,7 @@ const AddRestaurante = () => {
     });
 
     const navigation = useNavigation(); // Obtiene el objeto de navegación
-    const { state ,restaurantes, setRestaurantes} = useAuth();
+    const { state ,restaurantes, setRestaurantes, loading, setLoading} = useAuth();
     const userId = state.user?.id;
     const [error, setError] = useState('');
     const [base64, setBase64] = useState(null);
@@ -144,15 +145,18 @@ const AddRestaurante = () => {
        
 
         try {
+            setLoading(true); // Activa el estado de carga al pulsar el botón "Añadir"
             await API.post('/restaurantes/add', { ...restauranteData }, { 
                 headers: {
                     'id': userId
                 } 
             }); 
-            navigation.navigate('Restaurantes');
+            setLoading(false); // Desactiva el estado de carga al finalizar la operación
             setRestaurantes([...restaurantes, restauranteData]);
+            navigation.navigate('Restaurantes');
         } catch (error) {
             console.error("Error al añadir el restaurante", error);
+            setLoading(false); // Desactiva el estado de carga al finalizar la operación
         }
     };
 
@@ -168,72 +172,77 @@ const AddRestaurante = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.heading}>Añadir un nuevo restaurante</Text>
-            <View style={styles.formContainer}>
-                <TextInput
-                    style={styles.input}
-                    value={restauranteData.nombre}
-                    onChangeText={(text) => handleChange('nombre', text)}
-                    placeholder="Nombre"
-                    required
-                />
-                <TextInput
-                    style={styles.input}
-                    value={restauranteData.ciudad}
-                    onChangeText={(text) => handleChange('ciudad', text)}
-                    placeholder="Ciudad"
-                    required
-                />
-                <TextInput
-                    style={styles.input}
-                    value={restauranteData.provincia}
-                    onChangeText={(text) => handleChange('provincia', text)}
-                    placeholder="Provincia"
-                    required
-                />
-                <TextInput
-                    style={styles.input}
-                    value={restauranteData.telefono}
-                    onChangeText={(text) => handleChange('telefono', text)}
-                    placeholder="Teléfono"
-                    required
-                />
-                 {error ? <Text style={styles.error}>{error}</Text> : null}
-                <View style={styles.buttonContainer}>
-                    {Platform.OS !== 'web'?(
-                    <>
-                        <TouchableOpacity style={styles.buttonSelect} onPress={handleChooseImage}>
-                            <Text style={styles.buttonText}>Seleccionar imagen</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.buttonFoto} onPress={handleTakePhoto}>
-                            <Text style={styles.buttonText}>Tomar foto</Text>
-                        </TouchableOpacity>
-
-                    </>
+            {loading ? ( // Si isLoading es true, muestra el indicador de carga
+                <Loading />
+                ) : 
+                ( 
+                    <View style={styles.formContainer}>
+                    <TextInput
+                        style={styles.input}
+                        value={restauranteData.nombre}
+                        onChangeText={(text) => handleChange('nombre', text)}
+                        placeholder="Nombre"
+                        required
+                    />
+                    <TextInput
+                        style={styles.input}
+                        value={restauranteData.ciudad}
+                        onChangeText={(text) => handleChange('ciudad', text)}
+                        placeholder="Ciudad"
+                        required
+                    />
+                    <TextInput
+                        style={styles.input}
+                        value={restauranteData.provincia}
+                        onChangeText={(text) => handleChange('provincia', text)}
+                        placeholder="Provincia"
+                        required
+                    />
+                    <TextInput
+                        style={styles.input}
+                        value={restauranteData.telefono}
+                        onChangeText={(text) => handleChange('telefono', text)}
+                        placeholder="Teléfono"
+                        required
+                    />
+                     {error ? <Text style={styles.error}>{error}</Text> : null}
+                    <View style={styles.buttonContainer}>
+                        {Platform.OS !== 'web'?(
+                        <>
+                            <TouchableOpacity style={styles.buttonSelect} onPress={handleChooseImage}>
+                                <Text style={styles.buttonText}>Seleccionar imagen</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.buttonFoto} onPress={handleTakePhoto}>
+                                <Text style={styles.buttonText}>Tomar foto</Text>
+                            </TouchableOpacity>
+    
+                        </>
+                           
+                        ):(  
+                            <TouchableOpacity style={styles.buttonSelect} onPress={handleChooseImage}>
+                                <Text style={styles.buttonText}>Seleccionar imagen</Text>
+                            </TouchableOpacity>
+                        )}
                        
-                    ):(  
-                        <TouchableOpacity style={styles.buttonSelect} onPress={handleChooseImage}>
-                            <Text style={styles.buttonText}>Seleccionar imagen</Text>
+                    </View>
+                    <View >
+                        {restauranteData.imagen ? (
+                            <Image source={{ uri: img }} style={styles.imagen} />
+                        ) : (
+                            <View style={{ margin:'auto', marginBottom:10 }}><Text>No image selected</Text></View>
+                        )}
+                    </View >
+                    <View style={styles.buttonContainer}>
+                        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+                            <Text style={styles.submitButtonText}>Añadir</Text>
                         </TouchableOpacity>
-                    )}
-                   
+                        <TouchableOpacity style={styles.submitButtonCancelar} onPress={handleCancel}>
+                            <Text style={styles.submitButtonText}>Cancelar</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
-                <View >
-                    {restauranteData.imagen ? (
-                        <Image source={{ uri: img }} style={styles.imagen} />
-                    ) : (
-                        <View style={{ margin:'auto', marginBottom:10 }}><Text>No image selected</Text></View>
-                    )}
-                </View >
-                <View style={styles.buttonContainer}>
-                    <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-                        <Text style={styles.submitButtonText}>Añadir</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.submitButtonCancelar} onPress={handleCancel}>
-                        <Text style={styles.submitButtonText}>Cancelar</Text>
-                    </TouchableOpacity>
-                </View>
-               
-            </View>
+                )}
+           
         </View>
     );
 };

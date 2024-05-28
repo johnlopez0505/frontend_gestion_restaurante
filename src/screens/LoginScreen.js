@@ -3,13 +3,14 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform ,Keyboard
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthProvider';
 import { validateEmail } from '../validation/validation';
+import Loading from '../components/Loading';
 
 const LoginScreen = () => {
   
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { login, state: { isAuthenticated, loginError } } = useAuth();
+  const { login, state: { isAuthenticated, loginError }, loading} = useAuth();
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -42,37 +43,44 @@ const LoginScreen = () => {
   };
 
   return (
+   
     <KeyboardAvoidingView
     behavior={Platform.OS === 'ios' ? 'padding' : null}
     style={styles.container}>
-      <View style={styles.loginForm}>
-        <Text style={styles.title}>Iniciar Sesión</Text>
-        <View style={styles.formControl}>
-          <Text>Correo electrónico</Text>
-          <TextInput
-            style={styles.input}
-            value={username}
-            onChangeText={setUsername}
-            keyboardType="default"
-          />
+       {loading ? ( // Si isLoading es true, muestra el indicador de carga
+       <Loading />
+        ) : 
+        (
+          <View style={styles.loginForm}>
+          <Text style={styles.title}>Iniciar Sesión</Text>
+          <View style={styles.formControl}>
+            <Text>Correo electrónico</Text>
+            <TextInput
+              style={styles.input}
+              value={username}
+              onChangeText={setUsername}
+              keyboardType="default"
+            />
+          </View>
+          <View style={styles.formControl}>
+            <Text>Contraseña</Text>
+            <TextInput
+              style={styles.input}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+            />
+          </View>
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+          <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+            <Text style={styles.buttonText}>Iniciar Sesión</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+            <Text style={styles.link}>¿No tienes cuenta? Regístrate</Text>
+          </TouchableOpacity>
         </View>
-        <View style={styles.formControl}>
-          <Text>Contraseña</Text>
-          <TextInput
-            style={styles.input}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
-        </View>
-        {error ? <Text style={styles.error}>{error}</Text> : null}
-        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-          <Text style={styles.buttonText}>Iniciar Sesión</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-          <Text style={styles.link}>¿No tienes cuenta? Regístrate</Text>
-        </TouchableOpacity>
-      </View>
+        )}
+     
     </KeyboardAvoidingView >
   );
 }
@@ -87,7 +95,6 @@ const styles = StyleSheet.create({
   loginForm: {
     padding: 20,
     backgroundColor: 'white',
-    borderRadius: 8,
     borderColor:'gray',
     borderWidth:2,
     shadowColor: 'black',
@@ -98,7 +105,7 @@ const styles = StyleSheet.create({
     width: '90%',
     maxWidth: Platform.OS !== 'web' ? '90%':'25%',
     borderRadius: 30,
-    shadowRadius: 7,
+  
   },
   title: {
     fontSize: 20,

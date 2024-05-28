@@ -11,24 +11,27 @@ const Restaurant = ({restaurant}) => {
 
   const [visible, setVisible] = useState(false);
   const navigation = useNavigation();
-  const {setRestaurantes, restaurantes,state} = useAuth();
+  const {setRestaurantes, restaurantes,state,setLoading} = useAuth();
   const userId = state.user?.id;
   const showDialog = () => setVisible(true);
   const hideDialog = () => setVisible(false);
 
   const handlerDelete = async () => {
+    setLoading(true);
     try {
       const response = await API.delete(`/restaurantes/delete/${restaurant.id}`,{ 
           headers: {
               'id': userId
           } 
-      }); 
+      });
+      setLoading(false); 
       if(response.data.result ==="ok"){
         console.log(response.data.message);
         const updatedRestaurante = restaurantes.filter(restaurante => restaurante.id !== restaurant.id);
         setRestaurantes(updatedRestaurante);
         navigation.navigate('Restaurantes');
       }else{
+        setLoading(false);
         console.log(response.data.message);
       }
       
@@ -55,6 +58,7 @@ const Restaurant = ({restaurant}) => {
                   <MaterialCommunityIcons name='pencil' style={styles.edit} onPress={handlerEdit}/>
                 </View>
             </View>
+            
             <Portal>
               <Dialog visible={visible} onDismiss={hideDialog} dismissable={false} style={styles.dialog}>
                 <Dialog.Title style={styles.dialogTitle}>Confirmación</Dialog.Title>

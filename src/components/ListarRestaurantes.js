@@ -12,15 +12,19 @@ const ListRestaurant = () => {
   useEffect(() => {
     const fetchRestaurantes = async () => {
       try {
+        setLoading(true);
         console.log("entro en listar restaurantes");
         const response = await API.get('/restaurantes');
         console.log(response.data.restaurantes);
         setRestaurantes(response.data.restaurantes); 
+        setLoading(false);
       } catch (error) {
         if (error.response && error.response.data.status === "FORBIDDEN") {
           console.error('Error: el token ha expirado');
+          setLoading(false);
         } else {
           console.error("Error al obtener los restaurantes", error);
+          setLoading(false);
         }
       }
     };
@@ -30,7 +34,7 @@ const ListRestaurant = () => {
 
   return (
    
-        <ScrollView >
+        <ScrollView style={styles.scrollView}>
         <PaperProvider>
             <View style={styles.containerRestaurante}>
                 {
@@ -49,13 +53,13 @@ const ListRestaurant = () => {
 const styles = StyleSheet.create({
 
   containerRestaurante: {
+    flex: 1,
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     padding: 20,
     paddingVertical: 20,
     paddingHorizontal: 0,
-    justifyContent: 'center',
     alignItems: 'row',
     backgroundColor:'white',
     minWidth: '100%',

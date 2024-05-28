@@ -4,11 +4,13 @@ import ListRestaurant from '../components/ListarRestaurantes';
 import { useNavigation } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { TouchableHighlight } from 'react-native';
+import { useAuth } from '../context/AuthProvider';
 
 
 const RestaurantScreen = () => {
 
   const navigation = useNavigation();
+  const {loading} = useAuth();
   const [pressed, setPressed] = useState(false);
 
 
@@ -34,8 +36,6 @@ const RestaurantScreen = () => {
        <TouchableHighlight
         style={[
           styles.floatingButton,
-          pressed && styles.floatingButtonPressed,
-          Platform.OS === 'ios' && styles.floatingButtonIOS,
         ]}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
@@ -51,9 +51,10 @@ const RestaurantScreen = () => {
 
 const styles = StyleSheet.create({
   mainContainer: {
+    backgroundColor:"white",
     flex: 1,
-    // height: '100vh', // Ajusta la altura del contenedor principal
-    // overflow: 'hidden', // Evita que los elementos desborden la pantalla
+    height: '100vh', // Ajusta la altura del contenedor principal
+    overflow: 'hidden', // Evita que los elementos desborden la pantalla
   },
 
   scrollView: {

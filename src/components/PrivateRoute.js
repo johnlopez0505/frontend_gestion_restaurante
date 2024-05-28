@@ -20,9 +20,9 @@ function PrivateRoute() {
 
   const { loading } = useAuth();
 
-  if (loading) {
-    return <Loading/>;
-  }
+  // if (loading) {
+  //   return <Loading/>;
+  // }
 
   const headerHeight = Platform.select({
     ios: 85,
