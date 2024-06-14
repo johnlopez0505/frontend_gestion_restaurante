@@ -1,13 +1,13 @@
 {
   "expo": {
-    "name": "frontend_gestion_restaurante",
-    "slug": "frontend",
+    "name": "TastyGo",
+    "slug": "tasty go",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/LogoApp.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/LogoApp.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -15,7 +15,12 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "buildNumber": "1.0.0",
+      "infoPlist": {
+        "CFBundleDisplayName": "TastyGo"
+      },
+      "package": "com.john.tastygo"
     },
     "android": {
       "permissions": [
@@ -24,7 +29,9 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "versionCode": 1,
+      "package": "com.john.tastygo"
     },
     "web": {
       "favicon": "./assets/favicon.png"

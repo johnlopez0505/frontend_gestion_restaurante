@@ -14,3 +14,9 @@ export const formatearTelefono = (telefono) => {
     return telefono.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
 }
 
+
+// Función de validación para el precio
+export const validarPrecio = (precio) => {
+    return /^\d+(\.\d{1,2})?$/.test(precio);
+}
+

@@ -1,7 +1,9 @@
 import { StatusBar } from 'expo-status-bar';
 import { AuthProvider } from './src/context/AuthProvider';
 import { NavigationContainer } from '@react-navigation/native';
-import PrivateRoute from './src/components/PrivateRoute';
+import Toast from 'react-native-toast-message';
+import MainScreen from './src/screens/MainScreen';
+import ToastConfig from './src/components/ToastConfig';
 
 export default function App() {
 
@@ -10,7 +12,11 @@ export default function App() {
       <NavigationContainer>
         <AuthProvider>
           <StatusBar style="auto" />
-          <PrivateRoute />
+          {/* <MainScreenCopy/> */}
+          <MainScreen />
+          <Toast  config={ToastConfig} />
+          {/* <PrivateRoute /> */}
+          {/* <DrawerNavigation /> */}
         </AuthProvider>
       </NavigationContainer>
     </>  

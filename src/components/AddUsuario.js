@@ -1,38 +1,38 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Platform, TouchableOpacity } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { Image } from 'expo-image';
 import API from '../components/axios';
-import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import { useNavigation } from '@react-navigation/native'; // Importa el hook de navegación
 import { useAuth } from '../context/AuthProvider';
-import Loading from './Loading';
+import { validarTelefono } from '../validation/validation';
 import { FontAwesome5 } from '@expo/vector-icons';
+import Loading from './Loading';
 
-const AddMenu = ({route}) => {
+const AddUsuario = () => {
     
-    const [menuData, setMenuData] = useState({
-        nombre: '',
-        descripcion: '',
-        precio: '',
+    const [usuarioData, setUsuarioData] = useState({
+        fullName: '',
+        username: '',
+        telefono: '',
+        password: '',
         imagen: '', 
     });
 
-    const { restaurante } = route.params;
     const navigation = useNavigation(); // Obtiene el objeto de navegación
-    const { state ,menus, setMenus} = useAuth();
+    const { state ,usuarios, setUsuarios, role } = useAuth();
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
     const userId = state.user?.id;
+    const [error, setError] = useState('');
     const [base64, setBase64] = useState(null);
     const [img,setImg] = useState(null);
 
+    
     const handleChange = (name, value) => {
-        if (name === 'precio') {
-            value = value.replace(',', '.');  // Reemplaza cualquier coma por un punto
-        }
-        setMenuData({ ...menuData, [name]: value });
+        setUsuarioData({ ...usuarioData, [name]: value });
     };
+
 
     const handleChooseImage = async () => {
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -48,11 +48,10 @@ const AddMenu = ({route}) => {
             quality: 1,
         });
 
-
         if (!result.canceled) {
             const uri =  result.assets[0].uri
             setImg(uri);
-            setMenuData(prevData => ({
+            setUsuarioData(prevData => ({
                 ...prevData,
                 imagen: uri // Actualiza la propiedad de la imagen con la nueva URI
             }));
@@ -64,11 +63,9 @@ const AddMenu = ({route}) => {
                 setImg(uri);
                 //source={{ uri: 'data:image/jpeg;base64,' + asset.base64 }}
                 setBase64(base64);
-                setMenuData({...menuData,imagen:'data:image/jpeg;base64,'+ base64});
+                setUsuarioData({...usuarioData,imagen:'data:image/jpeg;base64,'+ base64});
             }
-
         }
-    
     };
 
     const handleTakePhoto = async () => {
@@ -87,7 +84,7 @@ const AddMenu = ({route}) => {
         if (!result.canceled) {
             const uri = result.assets[0].uri;
             setImg(uri);
-            setMenuData(prevData => ({
+            setUsuarioData(prevData => ({
                 ...prevData,
                 imagen: uri
             }));
@@ -95,9 +92,8 @@ const AddMenu = ({route}) => {
                 const base64 = await FileSystem.readAsStringAsync(uri, {
                     encoding: FileSystem.EncodingType.Base64,
                 });
-
                 setBase64(base64);
-                setMenuData(prevData => ({
+                setUsuarioData(prevData => ({
                     ...prevData,
                     imagen: 'data:image/jpeg;base64,' + base64
                 }));
@@ -106,76 +102,102 @@ const AddMenu = ({route}) => {
     };
 
     useEffect(() => {
-        // console.log(menuData); // Verificar la URL de la imagen después de actualizar el estado
-    }, [menuData.imagen]);
-
+        console.log(usuarioData);
+    }, [usuarioData.imagen]);
 
     const handleCancel = () => {
-        navigation.navigate('Detalles del restaurante',{restaurante:restaurante});
+        navigation.navigate('Usuarios'); 
         limpiarFormulario();
-        setError(null); 
+        
     };
 
+
     const handleSubmit = async () => {
-        if (!menuData.nombre && !menuData.descripcion && !menuData.precio && !menuData.imagen) {
+        if (!usuarioData.fullName && !usuarioData.username && !usuarioData.password 
+            && !usuarioData.telefono && !usuarioData.imagen) {
             setError('Por favor, ingrese todos los campos');
             return;
           }
-        if (!menuData.nombre) {
-            setError('Por favor, ingrese el nombre del menú');
+        if (!usuarioData.fullName) {
+            setError('Por favor, ingrese el nombre del usuario');
             return;
         }
-        if (!menuData.descripcion ) {
-            setError('Por favor, ingrese la descripción del menú');
+        if (!usuarioData.username ) {
+            setError('Por favor, ingrese el email');
             return;
         }
-        if (!menuData.precio) {
-            setError('Por favor, ingrese el precio del menú');
+        if (!usuarioData.password) {
+            setError('Por favor, ingrese la contraseña');
             return;
         }
-        if (!menuData.imagen) {
-            setError('Por favor, ingrese la imagen del menú');
+        if (!usuarioData.telefono ) {
+            setError('Por favor, ingrese el telefono del restaurante');
+            return;
+        }
+        if (!validarTelefono(usuarioData.telefono.trim())) {
+            setError('El número de teléfono no es válido.');
             return;
         }
 
-        // Verificar y corregir el precio
-        const precioCorregido = menuData.precio.replace(',', '.');
-        const menuDataCorregido = { ...menuData, precio: precioCorregido };
+        if (!usuarioData.imagen) {
+            setError('Por favor, ingrese la imagen');
+            return;
+        }
+       
 
-        
         try {
-            setLoading(true);
-            const response = await API.post('/menus/add', { ...menuData }, { 
+            let endPoint = "";
+           switch(role){
+            case 'admin':
+                endPoint = '/auth/register/admin';
+                break;
+            case 'usuario':
+                endPoint = '/auth/register';
+                break;
+            case 'empresario':
+                endPoint = '/auth/register/empresario';
+                break;
+            default:
+                break;
+           }
+            setLoading(true); // Activa el estado de carga al pulsar el botón "Añadir"
+            const response = await API.post(endPoint, { ...usuarioData }, { 
                 headers: {
-                    'id': restaurante.id
+                    'id': userId
                 } 
             }); 
-            if (response.data.result === 'ok') {
-                setMenus([...menus, response.data.menus]);
+            if(response.data.result === 'ok'){
+                setUsuarios([...usuarios, response.data.usuarios]);
+                navigation.navigate('Usuarios');
                 limpiarFormulario();
-                navigation.navigate('Carta Restaurante',{restaurante:restaurante});
             }else{
-                setError(response.data.message || 'Error al añadir el menú');
+                setError(response.data.message || 'Error al añadir el usuario');
                 console.log(response.data.message);
-            }
+            } 
         } catch (error) {
-            console.error("Error al añadir el menú", error);
+            console.error("Error al añadir el usuario", error);
             setError(error.response?.data?.message);
         }finally{
-            setLoading(false);
+            setLoading(false); // Desactiva el estado de carga al finalizar la operación
         }
     };
 
     useEffect(() => {
         setError(null); 
-      }, [menuData.nombre, menuData.descripcion, menuData.precio, menuData.imagen]);
+      }, [usuarioData.fullName, 
+        usuarioData.username, 
+        usuarioData.password,
+        usuarioData.telefono, 
+        usuarioData.imagen
+        ]);
 
-      const limpiarFormulario = () => {
+    const limpiarFormulario = () => {
         // Limpiar el formulario después de enviar los datos exitosamente
-        setMenuData({
-            nombre: '',
-            descripcion: '',
-            precio: '',
+        setUsuarioData({
+            fullName: '',
+            username: '',
+            password: '',
+            telefono: '',
             imagen: '', 
         });
         setImg(null);
@@ -183,44 +205,62 @@ const AddMenu = ({route}) => {
     } 
 
     return (
-
         <View style={styles.container}>
-            <Text style={styles.heading}>Añadir un nuevo Menú</Text>
-            {loading ? (<Loading/>
-                ) : (
-                 <View style={styles.formContainer}>
+            <Text style={styles.heading}>Nuevo Usuario</Text>
+            {loading ? (
+                <Loading />
+            ) : (
+                <View style={styles.formContainer}>
                     <View style={styles.inputContainer}>
+                        <FontAwesome5 name="user"  color="#777" style={styles.icon} />
                         <TextInput
                             style={styles.input}
-                            value={menuData.nombre}
-                            onChangeText={(text) => handleChange('nombre', text)}
+                            value={usuarioData.fullName}
+                            onChangeText={(text) => handleChange('fullName', text)}
                             placeholder="Nombre"
                         />
                     </View>
-                
                     <View style={styles.inputContainer}>
+                        <FontAwesome5 name="envelope"  color="#777" style={styles.icon} />
                         <TextInput
                             style={styles.input}
-                            value={menuData.descripcion}
-                            onChangeText={(text) => handleChange('descripcion', text)}
-                            placeholder="Descripcion"
+                            value={usuarioData.username}
+                            onChangeText={(text) => handleChange('username', text)}
+                            placeholder="Email"
                         />
                     </View>
-                
+                    
                     <View style={styles.inputContainer}>
+                        <FontAwesome5 name="phone"  color="#777" style={styles.icon}/>
                         <TextInput
                             style={styles.input}
-                            value={menuData.precio}
-                            onChangeText={(text) => handleChange('precio', text)}
-                            placeholder="Precio"
-                            keyboardType="numeric"  // Asegura que el teclado numérico aparezca
-                            />
+                            value={usuarioData.telefono}
+                            onChangeText={(text) => handleChange('telefono', text)}
+                            placeholder="Teléfono"
+                            keyboardType= {Platform.select({
+                                ios:'numbers-and-punctuation',
+                                android:'number-pad'
+                            })}
+                        />
                     </View>
-                 
-                  {error ? <Text style={styles.error}>{error}</Text> : null}
-                  <View style={styles.buttonContainer}>
+                    <View style={styles.inputContainer}>
+                        <FontAwesome5 name="lock"  color="#777" style={styles.icon} />
+                        <TextInput
+                            style={styles.input}
+                            value={usuarioData.password}
+                            onChangeText={(text) => handleChange('password', text)}
+                            placeholder="Password"
+                            secureTextEntry={true}
+                            keyboardType= {Platform.select({
+                                ios:'numbers-and-punctuation',
+                                android:'number-pad'
+                            })}
+                        />
+                    </View>
+                    {error ? <Text style={styles.error}>{error}</Text> : null}
+                    <View style={styles.buttonContainer}>
                         <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-                            <FontAwesome5 name="plus" size={20} color="white" style={{ marginRight: 8 }} /> 
+                            <FontAwesome5 name="plus" size={20} color="white" style={{ marginRight: 8 }} />
                             <Text style={styles.submitButtonText}>Añadir</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.submitButtonCancelar} onPress={handleCancel}>
@@ -239,15 +279,14 @@ const AddMenu = ({route}) => {
                         </TouchableOpacity>
                     </View>
                     <View style={styles.containerImagen}>
-                        {menuData.imagen !== "" ?  (
+                        {usuarioData.imagen !== "" ? (
                             <Image source={{ uri: img }} style={styles.imagen} contentFit="cover" />
                         ) : (
                             <View style={{ marginVertical: 10 }}><Text>No image selected</Text></View>
                         )}
                     </View>
-             </View>
+                </View>
             )}
-           
         </View>
     );
 };
@@ -358,7 +397,7 @@ const styles = StyleSheet.create({
         padding:'auto'
     },
     icon: {
-        marginRight: 5,
+        marginRight: 10,
         backgroundColor:'white',
         fontSize:20,
         paddingHorizontal:5,
@@ -377,4 +416,6 @@ const styles = StyleSheet.create({
     },
 });
 
-export default AddMenu;
+export default AddUsuario;
+
+

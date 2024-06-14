@@ -1,38 +1,51 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, TextInput, StyleSheet, Platform, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
-import API from '../components/axios';
 import * as ImagePicker from 'expo-image-picker';
+import API from '../components/axios';
 import * as FileSystem from 'expo-file-system';
-import { useNavigation } from '@react-navigation/native'; // Importa el hook de navegación
+import { useNavigation } from '@react-navigation/native'; 
 import { useAuth } from '../context/AuthProvider';
+import { useRoute } from '@react-navigation/native';
+import { FontAwesome5, FontAwesome6 } from '@expo/vector-icons';
 import Loading from './Loading';
-import { FontAwesome5 } from '@expo/vector-icons';
 
-const AddMenu = ({route}) => {
-    
+const EditMenu = () => {
+
+    const route = useRoute();
+    const { menu } = route.params;    
     const [menuData, setMenuData] = useState({
-        nombre: '',
-        descripcion: '',
-        precio: '',
-        imagen: '', 
+        nombre: menu.nombre,
+        descripcion: menu.descripcion,
+        precio: menu.precio,
+        imagen: "", 
     });
 
-    const { restaurante } = route.params;
-    const navigation = useNavigation(); // Obtiene el objeto de navegación
-    const { state ,menus, setMenus} = useAuth();
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+    const navigation = useNavigation(); 
+    const { state ,menus, setMenus,setLoading,loading} = useAuth();
     const userId = state.user?.id;
+    const [error, setError] = useState('');
     const [base64, setBase64] = useState(null);
     const [img,setImg] = useState(null);
 
+    useEffect (() => {
+        setImg(menu.imagen);
+    },[menu.imagen])
+
+    useEffect (() => {
+        setMenuData({
+            nombre: menu.nombre,
+            descripcion: menu.descripcion,
+            precio: menu.precio,
+            imagen:"",
+        })
+    },[menu])
+
+    
     const handleChange = (name, value) => {
-        if (name === 'precio') {
-            value = value.replace(',', '.');  // Reemplaza cualquier coma por un punto
-        }
         setMenuData({ ...menuData, [name]: value });
     };
+
 
     const handleChooseImage = async () => {
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -48,7 +61,6 @@ const AddMenu = ({route}) => {
             quality: 1,
         });
 
-
         if (!result.canceled) {
             const uri =  result.assets[0].uri
             setImg(uri);
@@ -62,8 +74,6 @@ const AddMenu = ({route}) => {
                     encoding: FileSystem.EncodingType.Base64,
                 });
                 setImg(uri);
-                //source={{ uri: 'data:image/jpeg;base64,' + asset.base64 }}
-                setBase64(base64);
                 setMenuData({...menuData,imagen:'data:image/jpeg;base64,'+ base64});
             }
 
@@ -95,7 +105,6 @@ const AddMenu = ({route}) => {
                 const base64 = await FileSystem.readAsStringAsync(uri, {
                     encoding: FileSystem.EncodingType.Base64,
                 });
-
                 setBase64(base64);
                 setMenuData(prevData => ({
                     ...prevData,
@@ -106,18 +115,17 @@ const AddMenu = ({route}) => {
     };
 
     useEffect(() => {
-        // console.log(menuData); // Verificar la URL de la imagen después de actualizar el estado
+        //console.log(menuData); // Verificar la URL de la imagen después de actualizar el estado
     }, [menuData.imagen]);
 
-
     const handleCancel = () => {
-        navigation.navigate('Detalles del restaurante',{restaurante:restaurante});
-        limpiarFormulario();
-        setError(null); 
+        navigation.navigate('Carta'); // Asegúrate de que 'Home' es el nombre de la ruta de tu página principal
     };
 
+
     const handleSubmit = async () => {
-        if (!menuData.nombre && !menuData.descripcion && !menuData.precio && !menuData.imagen) {
+        if (!menuData.nombre && !menuData.descripcion && !menuData.precio 
+           && !menuData.imagen) {
             setError('Por favor, ingrese todos los campos');
             return;
           }
@@ -126,41 +134,38 @@ const AddMenu = ({route}) => {
             return;
         }
         if (!menuData.descripcion ) {
-            setError('Por favor, ingrese la descripción del menú');
+            setError('Por favor, ingrese la descripción');
             return;
         }
         if (!menuData.precio) {
-            setError('Por favor, ingrese el precio del menú');
+            setError('Por favor, ingrese el precio');
             return;
         }
-        if (!menuData.imagen) {
-            setError('Por favor, ingrese la imagen del menú');
-            return;
-        }
+       
 
-        // Verificar y corregir el precio
-        const precioCorregido = menuData.precio.replace(',', '.');
-        const menuDataCorregido = { ...menuData, precio: precioCorregido };
-
-        
         try {
             setLoading(true);
-            const response = await API.post('/menus/add', { ...menuData }, { 
-                headers: {
-                    'id': restaurante.id
-                } 
-            }); 
-            if (response.data.result === 'ok') {
-                setMenus([...menus, response.data.menus]);
-                limpiarFormulario();
-                navigation.navigate('Carta Restaurante',{restaurante:restaurante});
+            const putResponse = await API.put(`/menus/edit/${menu.id}`, { ...menuData }, { 
+            });
+            if(putResponse.data.result === 'ok'){
+                 // Después de editar, obtén la lista actualizada de menus desde la base de datos
+                const response = await API.get('/menus');
+                if(response.data.result === 'ok'){
+                    // Ordenar los menus por id de menor a mayor
+                    const sortedMenus = response.data.menus.sort((a, b) => a.id - b.id);
+                    // Actualizar el estado con la lista de menus ordenada
+                    setMenus(sortedMenus);
+                    navigation.navigate('Carta');
+                }else{
+                    console.error(response.data.message);
+                }
+               
             }else{
-                setError(response.data.message || 'Error al añadir el menú');
-                console.log(response.data.message);
-            }
+                setError(putResponse.data.message);
+            } 
+               
         } catch (error) {
-            console.error("Error al añadir el menú", error);
-            setError(error.response?.data?.message);
+            setError(error.putResponse?.data?.message || error.response?.data?.message);
         }finally{
             setLoading(false);
         }
@@ -168,60 +173,58 @@ const AddMenu = ({route}) => {
 
     useEffect(() => {
         setError(null); 
-      }, [menuData.nombre, menuData.descripcion, menuData.precio, menuData.imagen]);
+      }, [menuData.nombre, 
+            menuData.descripcion, 
+            menuData.precio,
+            menuData.imagen
+        ]
+    );
 
-      const limpiarFormulario = () => {
-        // Limpiar el formulario después de enviar los datos exitosamente
-        setMenuData({
-            nombre: '',
-            descripcion: '',
-            precio: '',
-            imagen: '', 
-        });
-        setImg(null);
-        setBase64(null);
-    } 
+
+    
 
     return (
-
         <View style={styles.container}>
-            <Text style={styles.heading}>Añadir un nuevo Menú</Text>
-            {loading ? (<Loading/>
-                ) : (
-                 <View style={styles.formContainer}>
-                    <View style={styles.inputContainer}>
-                        <TextInput
-                            style={styles.input}
-                            value={menuData.nombre}
-                            onChangeText={(text) => handleChange('nombre', text)}
-                            placeholder="Nombre"
-                        />
-                    </View>
-                
-                    <View style={styles.inputContainer}>
-                        <TextInput
-                            style={styles.input}
-                            value={menuData.descripcion}
-                            onChangeText={(text) => handleChange('descripcion', text)}
-                            placeholder="Descripcion"
-                        />
-                    </View>
-                
-                    <View style={styles.inputContainer}>
-                        <TextInput
-                            style={styles.input}
-                            value={menuData.precio}
-                            onChangeText={(text) => handleChange('precio', text)}
-                            placeholder="Precio"
-                            keyboardType="numeric"  // Asegura que el teclado numérico aparezca
-                            />
-                    </View>
-                 
-                  {error ? <Text style={styles.error}>{error}</Text> : null}
-                  <View style={styles.buttonContainer}>
+            <Text style={styles.heading}>Editar Menú</Text>
+            {loading ? ( <Loading />
+            ) : 
+            (<View style={styles.formContainer}>
+                <View style={styles.inputContainer}>
+                    <FontAwesome5 name="utensils" color="#777" style={styles.icon} /> 
+                    <TextInput
+                        style={styles.input}
+                        value={menuData.nombre}
+                        onChangeText={(text) => handleChange('nombre', text)}
+                        placeholder="Nombre"
+                    />
+                </View>
+                <View style={styles.inputContainer}>
+                    <FontAwesome5 name="file-alt" color="#777" style={styles.icon} />
+                    <TextInput
+                        style={styles.input}
+                        value={menuData.descripcion}
+                        onChangeText={(text) => handleChange('descripcion', text)}
+                        placeholder="Descripción"
+                    />
+                </View>
+                <View style={styles.inputContainer}>
+                    <FontAwesome5 name="dollar-sign" color="#777" style={styles.icon} />
+                    <TextInput
+                        style={styles.input}
+                        value={String(menuData.precio)}
+                        onChangeText={(text) => handleChange('precio', text)}
+                        placeholder="Precio"
+                        keyboardType= {Platform.select({
+                            ios:'numbers-and-punctuation',
+                            android:'number-pad'
+                        })}
+                    />
+                </View>
+                {error ? <Text style={styles.error}>{error}</Text> : null}
+                    <View style={styles.buttonContainer}>
                         <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-                            <FontAwesome5 name="plus" size={20} color="white" style={{ marginRight: 8 }} /> 
-                            <Text style={styles.submitButtonText}>Añadir</Text>
+                            <FontAwesome6 name="edit" size={20} color="white" style={{ marginRight: 8 }} />
+                            <Text style={styles.submitButtonText}>Editar</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.submitButtonCancelar} onPress={handleCancel}>
                             <FontAwesome5 name="times" size={20} color="white" style={{ marginRight: 8 }} />
@@ -239,15 +242,14 @@ const AddMenu = ({route}) => {
                         </TouchableOpacity>
                     </View>
                     <View style={styles.containerImagen}>
-                        {menuData.imagen !== "" ?  (
+                        {img ?  (
                             <Image source={{ uri: img }} style={styles.imagen} contentFit="cover" />
                         ) : (
                             <View style={{ marginVertical: 10 }}><Text>No image selected</Text></View>
                         )}
                     </View>
-             </View>
+                </View>
             )}
-           
         </View>
     );
 };
@@ -376,5 +378,5 @@ const styles = StyleSheet.create({
         
     },
 });
-
-export default AddMenu;
+   
+export default EditMenu;

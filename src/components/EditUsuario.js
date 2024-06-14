@@ -1,37 +1,67 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Platform, TouchableOpacity } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
+import { View, Text, TextInput, StyleSheet, Platform, TouchableOpacity, Switch } from 'react-native';
 import { Image } from 'expo-image';
-import API from '../components/axios';
+import * as ImagePicker from 'expo-image-picker';
+import API from './axios';
 import * as FileSystem from 'expo-file-system';
-import { useNavigation } from '@react-navigation/native'; // Importa el hook de navegación
-import { useAuth } from '../context/AuthProvider';
+import { useNavigation } from '@react-navigation/native'; 
 import { validarTelefono } from '../validation/validation';
-import { FontAwesome5 } from '@expo/vector-icons';
+import { useAuth } from '../context/AuthProvider';
+import { useRoute } from '@react-navigation/native';
 import Loading from './Loading';
+import { FontAwesome5, FontAwesome6 } from '@expo/vector-icons';
 
-const AddRestaurante = () => {
-    
-    const [restauranteData, setRestauranteData] = useState({
-        nombre: '',
-        ciudad: '',
-        provincia: '',
-        telefono: '',
-        direccion: '',
-        imagen: '', 
+
+const EditUsuario = () => {
+
+    const route = useRoute();
+    const { usuario } = route.params;    
+    const [usuarioData, setUsuarioData] = useState({
+        fullName: usuario.fullName,
+        username: usuario.username,
+        provincia: usuario.provincia,
+        enabled: usuario.enabled,
+        telefono: usuario.telefono,
+        imagen: "", 
     });
 
-    const navigation = useNavigation(); // Obtiene el objeto de navegación
-    const { state ,restaurantes, setRestaurantes } = useAuth();
-    const [loading, setLoading] = useState(false);
+    const navigation = useNavigation(); 
+    const { state ,usuarios, setUsuarios} = useAuth();
     const userId = state.user?.id;
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const [base64, setBase64] = useState(null);
     const [img,setImg] = useState(null);
+    const [isEnabled, setIsEnabled] = useState(usuarioData.enabled);
 
+
+    useEffect(() => {
+        setIsEnabled(usuarioData.enabled);
+    }, [usuarioData]);
+
+    const toggleSwitch = () => {
+        setIsEnabled(previousState => !previousState);
+        handleChange('enabled', !usuarioData.enabled);
+    };
+
+    useEffect (() => {
+        setImg(usuario.imagen);
+    },[usuario.imagen])
+
+    useEffect (() => {
+        setUsuarioData({
+            fullName: usuario.fullName,
+            username: usuario.username,
+            provincia: usuario.provincia,
+            enabled: usuario.enabled,
+            telefono: usuario.telefono,
+            imagen: "", 
+        })
+    },[usuario])
+    console.log(usuarioData.enabled);
     
     const handleChange = (name, value) => {
-        setRestauranteData({ ...restauranteData, [name]: value });
+        setUsuarioData({ ...usuarioData, [name]: value });
     };
 
 
@@ -52,7 +82,7 @@ const AddRestaurante = () => {
         if (!result.canceled) {
             const uri =  result.assets[0].uri
             setImg(uri);
-            setRestauranteData(prevData => ({
+            setUsuarioData(prevData => ({
                 ...prevData,
                 imagen: uri // Actualiza la propiedad de la imagen con la nueva URI
             }));
@@ -62,11 +92,11 @@ const AddRestaurante = () => {
                     encoding: FileSystem.EncodingType.Base64,
                 });
                 setImg(uri);
-                //source={{ uri: 'data:image/jpeg;base64,' + asset.base64 }}
-                setBase64(base64);
-                setRestauranteData({...restauranteData,imagen:'data:image/jpeg;base64,'+ base64});
+                setUsuarioData({...usuarioData,imagen:'data:image/jpeg;base64,'+ base64});
             }
+
         }
+    
     };
 
     const handleTakePhoto = async () => {
@@ -85,7 +115,7 @@ const AddRestaurante = () => {
         if (!result.canceled) {
             const uri = result.assets[0].uri;
             setImg(uri);
-            setRestauranteData(prevData => ({
+            setUsuarioData(prevData => ({
                 ...prevData,
                 imagen: uri
             }));
@@ -94,7 +124,7 @@ const AddRestaurante = () => {
                     encoding: FileSystem.EncodingType.Base64,
                 });
                 setBase64(base64);
-                setRestauranteData(prevData => ({
+                setUsuarioData(prevData => ({
                     ...prevData,
                     imagen: 'data:image/jpeg;base64,' + base64
                 }));
@@ -103,153 +133,148 @@ const AddRestaurante = () => {
     };
 
     useEffect(() => {
-        console.log(restauranteData);
-    }, [restauranteData.imagen]);
+        //console.log(usuarioData); 
+    }, [usuarioData.imagen]);
 
     const handleCancel = () => {
-        navigation.navigate('Restaurantes'); 
-        limpiarFormulario();
-        
+        navigation.navigate('Usuarios'); 
     };
 
 
     const handleSubmit = async () => {
-        if (!restauranteData.nombre && !restauranteData.ciudad && !restauranteData.provincia 
-            && !restauranteData.telefono && !restauranteData.imagen) {
+        if (!usuarioData.fullName && !usuarioData.username && !usuarioData.enabled 
+            && !usuarioData.telefono && !usuarioData.imagen) {
             setError('Por favor, ingrese todos los campos');
             return;
           }
-        if (!restauranteData.nombre) {
-            setError('Por favor, ingrese el nombre del restaurante');
+        if (!usuarioData.fullName) {
+            setError('Por favor, ingrese el nombre del usuario');
             return;
         }
-        if (!restauranteData.ciudad ) {
-            setError('Por favor, ingrese la ciudad');
+        if (!usuarioData.username ) {
+            setError('Por favor, ingrese el email');
             return;
         }
-        if (!restauranteData.provincia) {
-            setError('Por favor, ingrese la provincia');
+    
+        if (!usuarioData.telefono ) {
+            setError('Por favor, ingrese el telefono del usuario');
             return;
         }
-        if (!restauranteData.telefono ) {
-            setError('Por favor, ingrese el telefono del restaurante');
+        if (!validarTelefono(usuarioData.telefono.trim())) {
+            setError('El número de teléfono no es válido.');
             return;
         }
-        if (!validarTelefono(restauranteData.telefono.trim())) {
-            setError('El número de teléfono no es válido. Debe tener 9 dígitos y comenzar por 6, 7 u 9');
-            return;
-        }
-
-        if (!restauranteData.imagen) {
-            setError('Por favor, ingrese la imagen del restaurante');
-            return;
-        }
-       
 
         try {
             setLoading(true);
-            const response = await API.post('/restaurantes/add', { ...restauranteData }, { 
+        
+            // Enviar la solicitud PUT para editar el usuario
+            const putResponse = await API.put(`/usuarios/edit/${usuario.id}`, { ...usuarioData }, { 
                 headers: {
-                    'id': userId
+                    'id': usuario.id 
                 } 
-            }); 
-            if(response.data.result === 'ok'){
-                setRestaurantes([...restaurantes, response.data.restaurantes]);
-                limpiarFormulario();
-                navigation.navigate('Restaurantes');
-            }else{
-                setError(response.data.message || 'Error al añadir el restaurante');
-                console.log(response.data.message);
+            });
+        
+            console.log(putResponse.data.usuarios);
+        
+            if (putResponse.data.result === "ok") {
+                // Obtener la lista actualizada de usuarios
+                const getResponse = await API.get(`/usuarios`);
+                
+                if (getResponse.data.result === 'ok') {
+                    // Ordenar los usuarios por id de menor a mayor
+                    const sortedUsuarios = getResponse.data.usuarios.sort((a, b) => a.id - b.id);
+                    // Actualizar el estado con la lista de usuarios ordenada
+                    setUsuarios(sortedUsuarios);
+                    // Navegar a la pantalla de Usuarios
+                    navigation.navigate('Usuarios');
+                } else {
+                    // Manejar el error de la solicitud GET
+                    setError(getResponse.data.message);
+                }
+            } else {
+                // Manejar el error de la solicitud PUT
+                setError(putResponse.data.message);
+                console.error(putResponse.data.message);
             }
         } catch (error) {
-            console.error("Error al añadir el restaurante", error);
-            setError(error.response?.data?.message);
-        }finally{
-            setLoading(false); 
+            // Manejar cualquier error durante las solicitudes
+            console.error("Error al editar el usuario", error);
+            setError("Error al editar el usuario");
+        } finally {
+            setLoading(false);
         }
-    };
+    }
 
+    
     useEffect(() => {
         setError(null); 
-      }, [restauranteData.nombre, 
-            restauranteData.ciudad, 
-            restauranteData.provincia,
-            restauranteData.telefono, 
-            restauranteData.direccion,
-            restauranteData.imagen
-        ]);
+      }, [usuarioData.fullName, 
+            usuarioData.username, 
+            usuarioData.enabled,
+            usuarioData.telefono, 
+            usuarioData.imagen
+        ]
+    );
 
-    const limpiarFormulario = () => {
-        // Limpiar el formulario después de enviar los datos exitosamente
-        setRestauranteData({
-            nombre: '',
-            ciudad: '',
-            provincia: '',
-            telefono: '',
-            direccion:'',
-            imagen: '', 
-        });
-        setImg(null);
-        setBase64(null);
-    } 
+
+    
 
     return (
         <View style={styles.container}>
-            <Text style={styles.heading}>Nuevo restaurante</Text>
+            <Text style={styles.heading}>Editar usuario</Text>
             {loading ? (
                 <Loading />
             ) : (
                 <View style={styles.formContainer}>
                     <View style={styles.inputContainer}>
-                        <FontAwesome5 name="utensils" color="#777" style={styles.icon} /> 
+                        <FontAwesome5 name="user" color="#777" style={styles.icon} />
                         <TextInput
                             style={styles.input}
-                            value={restauranteData.nombre}
-                            onChangeText={(text) => handleChange('nombre', text)}
+                            value={usuarioData.fullName}
+                            onChangeText={(text) => handleChange('fullName', text)}
                             placeholder="Nombre"
                         />
                     </View>
                     <View style={styles.inputContainer}>
-                        <FontAwesome5 name="building" color="#777" style={styles.icon} />
+                        <FontAwesome5 name="envelope" color="#777" style={styles.icon} />
                         <TextInput
-                            style={styles.input}
-                            value={restauranteData.ciudad}
-                            onChangeText={(text) => handleChange('ciudad', text)}
-                            placeholder="Ciudad"
+                            style={[styles.input, styles.nonEditableInput]}
+                            value={usuarioData.username}
+                            placeholder="Email"
+                            editable={false}
                         />
                     </View>
                     <View style={styles.inputContainer}>
-                        <FontAwesome5 name="flag" color="#777" style={styles.icon} />
+                        <FontAwesome5 name="phone" color="#777" style={styles.icon} />
                         <TextInput
                             style={styles.input}
-                            value={restauranteData.provincia}
-                            onChangeText={(text) => handleChange('provincia', text)}
-                            placeholder="Provincia"
-                        />
-                    </View>
-                    <View style={styles.inputContainer}>
-                        <FontAwesome5 name="phone-volume" color="#777" style={styles.icon} />
-                        <TextInput
-                            style={styles.input}
-                            value={restauranteData.telefono}
+                            value={usuarioData.telefono}
                             onChangeText={(text) => handleChange('telefono', text)}
                             placeholder="Teléfono"
                         />
                     </View>
                     <View style={styles.inputContainer}>
-                        <FontAwesome5 name="map-marker-alt" color="#777" style={styles.icon} />
+                        <FontAwesome5 name={isEnabled ? "toggle-on" : "toggle-off"} color="#777" style={styles.icon} />
                         <TextInput
                             style={styles.input}
-                            value={restauranteData.direccion}
-                            onChangeText={(text) => handleChange('direccion', text)}
-                            placeholder="Dirección"
+                            value={usuarioData.enabled ? 'true' : 'false'}
+                            onChangeText={(text) => handleChange('enabled', text)}
+                            placeholder="Enabled"
+                        />
+                        <Switch
+                            trackColor={{ false: "#A4A4A4", true: "#D8D8D8" }}
+                            thumbColor={usuarioData.enabled ? "#A9F5BC" : "#F5A9A9"}
+
+                            onValueChange={toggleSwitch}
+                            value={usuarioData.enabled}
                         />
                     </View>
-                     {error ? <Text style={styles.error}>{error}</Text> : null}
+                    {error ? <Text style={styles.error}>{error}</Text> : null}
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-                            <FontAwesome5 name="plus" size={20} color="white" style={{ marginRight: 8 }} />
-                            <Text style={styles.submitButtonText}>Añadir</Text>
+                            <FontAwesome6 name="edit" size={20} color="white" style={{ marginRight: 8 }} />
+                            <Text style={styles.submitButtonText}>Editar</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.submitButtonCancelar} onPress={handleCancel}>
                             <FontAwesome5 name="times" size={20} color="white" style={{ marginRight: 8 }} />
@@ -267,7 +292,7 @@ const AddRestaurante = () => {
                         </TouchableOpacity>
                     </View>
                     <View style={styles.containerImagen}>
-                        {restauranteData.imagen !== "" ? (
+                        {img ? (
                             <Image source={{ uri: img }} style={styles.imagen} contentFit="cover" />
                         ) : (
                             <View style={{ marginVertical: 10 }}><Text>No image selected</Text></View>
@@ -285,14 +310,14 @@ const styles = StyleSheet.create({
         paddingTop: 10,
         alignItems: 'center',
         paddingHorizontal: 20,
-        backgroundColor: '#eef5f9', // Cambio de color de fondo del formulario
+        backgroundColor: '#eef5f9',
     },
     heading: {
         fontSize: 28,
         fontWeight: 'bold',
         marginBottom: 10,
         color: '#333',
-        textAlign: 'center', // Alineación del texto central
+        textAlign: 'center',
     },
     formContainer: {
         width: '100%',
@@ -316,55 +341,54 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     buttonSelect: {
-        backgroundColor: '#49beb7', // Verde azulado suave
+        backgroundColor: '#49beb7',
         flexDirection: 'row',
         alignItems: 'center',
         padding: 12,
-        paddingLeft:33,
+        paddingLeft: 33,
         borderRadius: 8,
-        width: '48%', // Cambia el ancho para que quepan dos botones en una fila
+        width: '48%',
     },
     buttonFoto: {
-        backgroundColor: '#f47a60', // Naranja brillante
+        backgroundColor: '#f47a60',
         flexDirection: 'row',
         alignItems: 'center',
         padding: 12,
-        paddingLeft:42,
+        paddingLeft: 42,
         borderRadius: 8,
-        width: '48%', // Cambia el ancho para que quepan dos botones en una fila
+        width: '48%',
     },
-
     buttonText: {
         color: 'white',
         fontSize: 14,
         textAlign: 'center',
     },
     submitButton: {
-        backgroundColor: '#27ae60', // Verde oscuro
+        backgroundColor: '#27ae60',
         padding: 15,
-        paddingLeft:25,
+        paddingLeft: 25,
         borderRadius: 10,
         alignItems: 'center',
-        flexDirection: 'row', // Alinea el icono con el texto
-        width: '48%', // Cambia el ancho para que quepan dos botones en una fila
+        flexDirection: 'row',
+        width: '48%',
     },
     submitButtonCancelar: {
-        backgroundColor: '#e74c3c', // Rojo oscuro
+        backgroundColor: '#e74c3c',
         padding: 15,
-        paddingLeft:22,
+        paddingLeft: 22,
         borderRadius: 10,
         alignItems: 'center',
-        flexDirection: 'row', 
-        width: '48%', 
+        flexDirection: 'row',
+        width: '48%',
     },
     submitButtonText: {
         color: 'white',
         fontSize: 16,
         fontWeight: 'bold',
-        marginLeft: 5, 
+        marginLeft: 5,
     },
     error: {
-        textAlign:'center',
+        textAlign: 'center',
         color: 'red',
         marginBottom: 10,
     },
@@ -382,26 +406,28 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 10,
-        padding:'auto'
+        padding: 'auto',
     },
     icon: {
-        marginRight: 5,
-        backgroundColor:'white',
-        fontSize:20,
-        paddingHorizontal:5,
-        borderRadius:5,
-        paddingVertical:5
+        marginRight: 10,
+        backgroundColor: 'white',
+        fontSize: 20,
+        paddingHorizontal: 5,
+        borderRadius: 5,
+        paddingVertical: 5,
     },
     input: {
-        flex:1,
+        flex: 1,
         height: 40,
         borderColor: '#ccc',
         borderWidth: 1,
         paddingHorizontal: 10,
         borderRadius: 5,
-        
-        
+    },
+    nonEditableInput: {
+        backgroundColor: '#f0f0f0', // Color de fondo para campos no editables
+        color: '#a0a0a0', // Color de texto para campos no editables
     },
 });
 
-export default AddRestaurante;
+export default EditUsuario;

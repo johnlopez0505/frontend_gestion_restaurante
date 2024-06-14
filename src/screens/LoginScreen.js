@@ -6,11 +6,10 @@ import { validateEmail } from '../validation/validation';
 import Loading from '../components/Loading';
 
 const LoginScreen = () => {
-  
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { login, state: { isAuthenticated, loginError }, loading} = useAuth();
+  const { login, state: { isAuthenticated, loginError }, loading, role,setRole} = useAuth();
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -18,7 +17,7 @@ const LoginScreen = () => {
       navigation.navigate('Home');
     }
     if (loginError) {
-      setError(loginError.message || 'Error al iniciar sesión'); 
+      setError(loginError); 
     } else {
       setError(null); 
     }
@@ -47,7 +46,7 @@ const LoginScreen = () => {
     <KeyboardAvoidingView
     behavior={Platform.OS === 'ios' ? 'padding' : null}
     style={styles.container}>
-       {loading ? ( // Si isLoading es true, muestra el indicador de carga
+       {loading ? (
        <Loading />
         ) : 
         (
@@ -75,8 +74,11 @@ const LoginScreen = () => {
           <TouchableOpacity style={styles.button} onPress={handleSubmit}>
             <Text style={styles.buttonText}>Iniciar Sesión</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-            <Text style={styles.link}>¿No tienes cuenta? Regístrate</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Register',{role:setRole('usuario')})}>
+            <Text style={styles.link}>¿Regístrate como usuario?</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Register',{role:setRole('empresario')})}>
+            <Text style={styles.link}>¿Regístrate como empresario?</Text>
           </TouchableOpacity>
         </View>
         )}
@@ -97,11 +99,20 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderColor:'gray',
     borderWidth:2,
-    shadowColor: 'black',
-    shadowOffset: { width: 0, height: 0 },
-    shadowRadius: 9,
-    elevation: 5,
-    shadowOpacity: 0.8,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.8,
+        shadowRadius: 9,
+      },
+      android: {
+        elevation: 5,
+      },
+      web: {
+        boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.8)', // Usando boxShadow para la web
+      },
+    }),
     width: '90%',
     maxWidth: Platform.OS !== 'web' ? '90%':'25%',
     borderRadius: 30,

@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useReducer, useState, useEffect } from 'react';
 import axios from 'axios';
-// import { AsyncStorage } from 'react-native'; 
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Importar AsyncStorage desde 'react-native'
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
 
 const AuthContext = createContext();
 
@@ -15,10 +14,6 @@ const authReducer = (state, action) => {
                 refreshToken: null, loginError: action.payload };
         case 'LOGOUT':
             return { ...state, isAuthenticated: false, user: null, token: null, refreshToken: null, loginError: null };
-        case 'REGISTER_SUCCESS':
-            return { ...state, isAuthenticated: true, user: action.payload.user, loginError: null };
-        case 'REGISTER_FAILED':
-            return { ...state, isAuthenticated: false, user: null,  loginError: action.payload };
         default:
             throw new Error(`Unhandled action type: ${action.type}`);
     }
@@ -31,12 +26,15 @@ export const AuthProvider = ({ children }) => {
             "id":"",
             "username": "",
             "fullName": "",
+            "telefono": "",
+            "imagen":"",
             "rol":"",
         },
         token: null,
         refreshToken: null,
-        loginError: null
+        loginError: null,
     };
+    
 
     const [state, dispatch] = useReducer(authReducer, initialState);
     const [loading, setLoading] = useState(false);
@@ -44,7 +42,15 @@ export const AuthProvider = ({ children }) => {
     const [menus, setMenus] = useState([]);
     const [usuarios, setUsuarios] = useState([]);
     const [reservas, setReservas] = useState([]);
+    const [favoritos, setFavoritos] = useState([]);
     const [urlSolicitud, setUrlSolicitud] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [combinedData, setCombinedData] = useState([]);
+    const [menusRestaurante, setMenusRestaurante] = useState([]);
+    const [actualizar, setActualizar] = useState(false);
+    const [role, setRole] = useState(''); // Estado para el rol
+
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const loadUser = async () => {
@@ -66,83 +72,35 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (username, password) => {
-        setLoading(true);
         try {
+            setLoading(true);
             const response = await axios.post('https://backend-fbwq.onrender.com/api/auth/login', { username, password });
-            const { token, refreshToken, fullName, id, rol } = response.data;
-            await AsyncStorage.setItem('token', token); // Guardar el token en AsyncStorage
-            await AsyncStorage.setItem('refreshToken', refreshToken); // Guardar el refreshToken en el AsyncStorage
-            // Guardar el usuario en AsyncStorage
-            const user = { id, fullName, rol, username };
-            await AsyncStorage.setItem('user', JSON.stringify(user));
-    
-            dispatch({ type: 'LOGIN_SUCCESS', payload: { user, token, refreshToken } });
-            setLoading(false);
+            if (response.data.result === "ok") {    
+                const { id, fullName, telefono, rol, imagen ,token, refreshToken } = response.data.usuarios;
+                // Guardar tokens y usuario en AsyncStorage
+                await AsyncStorage.setItem('token', token);
+                await AsyncStorage.setItem('refreshToken', refreshToken);
+                const user = { id, username, fullName, telefono, rol, imagen };
+                await AsyncStorage.setItem('user', JSON.stringify(user));
+                dispatch({ type: 'LOGIN_SUCCESS', payload: { user, token, refreshToken } });
+            } else {
+                dispatch({ type: 'LOGIN_FAILED', payload: response.data.message || 'Error al iniciar sesión' });
+                setError(response.data.message);
+            }
         } catch (error) {
+            console.log(error.response?.data?.message);
+            dispatch({ type: 'LOGIN_FAILED', payload: error.response?.data?.message || 'Error al iniciar sesión' });
+            setError(error.response?.data?.message);
+        } finally {
             setLoading(false);
-            console.error("Error durante el inicio de sesión", error);
-            dispatch({ type: 'LOGIN_FAILED', payload: error.response.data || 'Error al iniciar sesión' })
         }
     };
-
-    const register = async (username, password, fullName) => {
-        try {
-            const response = await axios.post('https://backend-fbwq.onrender.com/api/auth/register', { username, password, fullName });
-            const { accessToken, user } = response.data;
-            await AsyncStorage.setItem('token', accessToken);
-            await AsyncStorage.setItem('user', JSON.stringify(user));
-            dispatch({ type: 'REGISTER_SUCCESS', payload: { user, accessToken } });
-        } catch (error) {
-            dispatch({ type: 'REGISTER_FAILED', payload: error.response.data || 'Error en el registro' });
-        }
-    };
-
-
-    // useEffect(() => {
-    //     const fetchMenus = async () => {
-    //         try {
-    //             const response = await API.get('/menus');
-    //             setMenus(response.data);
-    //         } catch (error) {
-    //             console.error("Error al obtener los menús", error);
-    //         }
-    //     }
-    //     fetchMenus();
-        
-    // },[])
-
-    // useEffect(() => {
-    //     const fetchUsuarios = async () => {
-    //         try {
-    //             const response = await API.get('/usuarios');
-    //             setUsuarios(response.data);
-    //         } catch (error) {
-    //             console.error("Error al obtener las usuarios", error);
-    //         }
-    //     }
-    //     fetchUsuarios();
-        
-    // },[])
-
-    // useEffect(() => {
-    //     const fetchReservas = async () => {
-    //         try {
-    //             const response = await API.get('/reservas');
-    //             setRestaurantes(response.data);
-    //         } catch (error) {
-    //             console.error("Error al obtener las reservas", error);
-    //         }
-    //     }
-    //     fetchReservas();
-        
-    // },[])
-
 
 
     const logout = async () => {
         try {
             await AsyncStorage.removeItem('token'); // Eliminar el token de AsyncStorage
-            await AsyncStorage.removeItem('refreshToken') //Eliminar el token de AsyncStorage
+            await AsyncStorage.removeItem('refreshToken'); //Eliminar el token de AsyncStorage
             await AsyncStorage.removeItem('user'); // Eliminar el usuario de AsyncStorage
             dispatch({ type: 'LOGOUT' });
         } catch (error) {
@@ -155,9 +113,10 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ login, register, logout, getToken, state, loading, setLoading,
-        setRestaurantes,restaurantes,setMenus,menus, setReservas,
-        reservas,setUsuarios,usuarios, urlSolicitud, setUrlSolicitud}}>
+        <AuthContext.Provider value={{ login, logout, getToken, state, loading, setLoading, role,
+        setRestaurantes,restaurantes,setMenus,menus, setReservas, favoritos, setFavoritos, setRole,
+        reservas,setUsuarios,usuarios, urlSolicitud, setUrlSolicitud, searchQuery , setSearchQuery,
+        combinedData, setCombinedData, menusRestaurante, setMenusRestaurante, actualizar, setActualizar }}>
             {children}
         </AuthContext.Provider>
     );

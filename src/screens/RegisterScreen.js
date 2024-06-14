@@ -3,17 +3,21 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, Keyboard
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthProvider';
 import { validateEmail } from '../validation/validation';
+import Loading from '../components/Loading';
+import API from '../components/axios';
 
-function RegisterScreen() {
+const  RegisterScreen = () => {
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [password2, setPassword2] = useState('');
   const [fullName, setFullName] = useState('');
   const [error, setError] = useState('');
-  const { register, state } = useAuth();
+  const { role } = useAuth();
+  const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
 
-  const handleSubmit = () => {
+  const handleSubmit = async() => {
     if (!username || !password || !fullName) {
       setError('Por favor, complete todos los campos');
       return;
@@ -29,17 +33,32 @@ function RegisterScreen() {
       return;
     }
 
-    register(username, password, fullName);
+    try {
+      setLoading(true); 
+      let endpoint = '';
+      if(role === 'usuario'){
+          endpoint = '/auth/register'
+      }
+      if(role === 'empresario'){
+        endpoint = '/auth/register/empresario'
+      }
+      console.log("entramos en guardar usuario")
+      const response = await API.post(endpoint, { username, password, fullName });
+      console.log(response.data.result);
+      if(response.data.result === 'ok'){
+        console.log(response.data.message);
+        navigation.navigate('Login');
+      }else{
+        setError(response.data.message || 'Error al registrarse' );
+        console.log(response.data.message);
+      }
+     
+    } catch (error) {
+      setError(error.response?.data?.message || 'Error al registrarse' );
+    }finally{
+      setLoading(false); 
+    }
   };
-
-  useEffect(() => {
-    if (state.isAuthenticated) {
-      navigation.navigate('Login');
-    }
-    if (state.loginError) {
-      setError(state.loginError);
-    }
-  }, [state, navigation]);
 
   useEffect(() => {
     setError('');
@@ -49,7 +68,11 @@ function RegisterScreen() {
     <KeyboardAvoidingView
      behavior={Platform.OS === 'ios' ? 'padding' : null}
      style={styles.registerFormContainer}>
-      <View style={styles.registerForm}>
+        {loading ? (
+       <Loading />
+        ) : 
+        (
+          <View style={styles.registerForm}>
         <Text style={styles.title}>Crear cuenta</Text>
         <View style={styles.formControl}>
           <Text>Nombre de usuario</Text>
@@ -95,6 +118,7 @@ function RegisterScreen() {
           <Text style={styles.link}>¿Ya tienes cuenta? Inicia sesión</Text>
         </TouchableOpacity>
       </View>
+    )}
     </KeyboardAvoidingView>
   );
 }
@@ -112,15 +136,23 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderColor:'gray',
     borderWidth:Platform.OS === 'android' ? 1 : borderWidth=2,
-    shadowColor: 'black',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 15,
-    elevation: 8,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.8,
+        shadowRadius: 9,
+      },
+      android: {
+        elevation: 5,
+      },
+      web: {
+        boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.8)', // Usando boxShadow para la web
+      },
+    }),
     width: '90%',
     maxWidth: Platform.OS !== 'web' ? '90%':'25%',
     borderRadius: 30,
-    shadowRadius: 7,
   },
   title: {
     fontSize: 20,
