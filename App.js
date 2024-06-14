@@ -12,11 +12,8 @@ export default function App() {
       <NavigationContainer>
         <AuthProvider>
           <StatusBar style="auto" />
-          {/* <MainScreenCopy/> */}
           <MainScreen />
           <Toast  config={ToastConfig} />
-          {/* <PrivateRoute /> */}
-          {/* <DrawerNavigation /> */}
         </AuthProvider>
       </NavigationContainer>
     </>  
