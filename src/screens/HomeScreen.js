@@ -1,7 +1,6 @@
 
 import React from 'react';
-import { View, Text, StyleSheet, ImageBackground, TouchableOpacity, TextInput, ScrollView } from 'react-native';
-import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
+import { View, Text, StyleSheet, ImageBackground, ScrollView } from 'react-native';
 
 const HomeScreen = () => {
   return (
@@ -11,52 +10,33 @@ const HomeScreen = () => {
     >
       <View style={styles.overlay}>
         <View style={styles.header}>
-          <Text style={styles.title}>Bienvenidos a GastroGuide</Text>
+          <Text style={styles.title}>Bienvenidos a TastyGo</Text>
           <Text style={styles.subtitle}>Descubre los mejores restaurantes cerca de ti</Text>
-          <TextInput 
-            style={styles.searchBar}
-            placeholder="Buscar restaurantes..."
-            placeholderTextColor="#aaa"
-          />
         </View>
         <ScrollView style={styles.content}>
-          <Text style={styles.sectionTitle}>Categorías</Text>
-          <View style={styles.categories}>
-            <TouchableOpacity style={styles.category}>
-              <FontAwesome name="cutlery" size={24} color="#fff" />
-              <Text style={styles.categoryText}>Italianos</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.category}>
-              <FontAwesome name="cutlery" size={24} color="#fff" />
-              <Text style={styles.categoryText}>Chinos</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.category}>
-              <FontAwesome name="cutlery" size={24} color="#fff" />
-              <Text style={styles.categoryText}>Vegetarianos</Text>
-            </TouchableOpacity>
-          </View>
           <Text style={styles.sectionTitle}>Populares</Text>
           <View style={styles.popularRestaurants}>
             <View style={styles.restaurantCard}>
-              <Text style={styles.restaurantName}>Restaurante A</Text>
+              <Text style={styles.restaurantName}>Restaurante Pizzeria Da Ernestor </Text>
               <Text style={styles.restaurantDetails}>★★★★☆ 4.5</Text>
             </View>
             <View style={styles.restaurantCard}>
-              <Text style={styles.restaurantName}>Restaurante B</Text>
+              <Text style={styles.restaurantName}>Restaurante Casa Pepe</Text>
               <Text style={styles.restaurantDetails}>★★★★☆ 4.2</Text>
             </View>
           </View>
+             {/* Sección de ofertas especiales */}
+             <Text style={styles.sectionTitle}>Ofertas Especiales</Text>
+          <View style={styles.specialOffers}>
+            <View style={styles.offerCard}>
+              <Text style={styles.offerTitle}>¡Hoy! 50% de descuento en pizzas grandes</Text>
+            </View>
+            <View style={styles.offerCard}>
+              <Text style={styles.offerTitle}>Menú especial por tiempo limitado</Text>
+            </View>
+          </View>
         </ScrollView>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button}>
-            <MaterialIcons name="restaurant-menu" size={24} color="#fff" />
-            <Text style={styles.buttonText}>Ver Restaurantes</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button}>
-            <MaterialIcons name="favorite" size={24} color="#fff" />
-            <Text style={styles.buttonText}>Favoritos</Text>
-          </TouchableOpacity>
-        </View>
+      
       </View>
     </ImageBackground>
   );
@@ -110,23 +90,7 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     textAlign: 'left',
   },
-  categories: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  category: {
-    alignItems: 'center',
-    backgroundColor: '#ff6f61',
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderRadius: 30,
-    marginHorizontal: 10,
-  },
-  categoryText: {
-    fontSize: 14,
-    color: '#fff',
-    marginTop: 5,
-  },
+  
   popularRestaurants: {
     marginTop: 20,
   },
@@ -145,30 +109,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#555',
   },
-  buttonContainer: {
-    position: 'absolute',
-    bottom:0,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
+  specialOffers: {
+    marginBottom: 20,
   },
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#ff6f61',
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderRadius: 30,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 6,
-    elevation: 5,
+  offerCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    padding: 15,
+    borderRadius: 10,
+    marginVertical: 10,
   },
-  buttonText: {
+  offerTitle: {
     fontSize: 16,
-    color: '#fff',
-    marginLeft: 10,
+    fontWeight: 'bold',
+    color: '#333',
   },
 });
 

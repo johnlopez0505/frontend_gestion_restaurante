@@ -75,7 +75,7 @@ const CustomDrawerContent = (props) => {
           <Text style={styles.profileUsername}>{state.user?.username}</Text>
 
           <TouchableOpacity onPress={handleProfile} style={styles.viewProfileButton}>
-            <Text style={styles.viewProfileText}>View Profile</Text>
+            <Text style={styles.viewProfileText}>Ver Perfil</Text>
           </TouchableOpacity>
       </View>
 
