@@ -58,7 +58,6 @@ const EditUsuario = () => {
             imagen: "", 
         })
     },[usuario])
-    console.log(usuarioData.enabled);
     
     const handleChange = (name, value) => {
         setUsuarioData({ ...usuarioData, [name]: value });
@@ -175,7 +174,6 @@ const EditUsuario = () => {
                 } 
             });
         
-            console.log(putResponse.data.usuarios);
         
             if (putResponse.data.result === "ok") {
                 // Obtener la lista actualizada de usuarios

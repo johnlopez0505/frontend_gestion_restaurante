@@ -18,6 +18,7 @@ const ListMenuRestaurante = () => {
     const fetchMenus = async () => {
       try {
         setLoading(true);
+        setError(null);
         console.log("entro en listar menus");
         const response = await API.get('/menus/usuario');
         if(response.data.result === 'ok'){
@@ -36,6 +37,10 @@ const ListMenuRestaurante = () => {
     };
     fetchMenus();
   }, [menus]);
+
+  useEffect(()=>{
+    setError(null);
+  },[setMenusRestaurante,menus])
  
 
   return (
@@ -151,11 +156,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginVertical: 20,
+    marginLeft:20,
   },
   errorText: {
     textAlign:'center',
     fontSize: 18,
-    color: 'red',
+    
   },
 });
 

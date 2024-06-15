@@ -20,7 +20,7 @@ const AddMenu = ({route}) => {
 
     const { restaurante } = route.params;
     const navigation = useNavigation(); // Obtiene el objeto de navegación
-    const { state ,menus, setMenus} = useAuth();
+    const { state ,menus, setMenus,setMenusRestaurante, menusRestaurante} = useAuth();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const userId = state.user?.id;
@@ -152,6 +152,7 @@ const AddMenu = ({route}) => {
             }); 
             if (response.data.result === 'ok') {
                 setMenus([...menus, response.data.menus]);
+                setMenusRestaurante([...menusRestaurante, response.data.menus]);
                 limpiarFormulario();
                 navigation.navigate('Carta Restaurante',{restaurante:restaurante});
             }else{

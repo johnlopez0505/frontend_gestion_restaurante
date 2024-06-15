@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "TastyGo",
-    "slug": "tasty go",
+    "slug": "frontend",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/LogoApp.png",
@@ -20,7 +20,7 @@
       "infoPlist": {
         "CFBundleDisplayName": "TastyGo"
       },
-      "package": "com.john.tastygo"
+      "bundleIdentifier": "com.john.tastygo"
     },
     "android": {
       "permissions": [
